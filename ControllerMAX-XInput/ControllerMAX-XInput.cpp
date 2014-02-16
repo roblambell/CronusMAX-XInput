@@ -214,8 +214,8 @@ namespace ControllerMAX_XInput {
 					normalizedMagnitudeL = 0.0;
 				}
 
-				float percentageLX = (normalizedLX * normalizedMagnitudeL) * 100;
-				float percentageLY = (normalizedLY * normalizedMagnitudeL) * 100;
+				int8_t percentageLX = int8_t((normalizedLX * normalizedMagnitudeL) * 100);
+				int8_t percentageLY = int8_t((normalizedLY * normalizedMagnitudeL) * 100);
 
 				// Right Thumb
 				float RX = controllerState.Gamepad.sThumbRX;
@@ -248,40 +248,40 @@ namespace ControllerMAX_XInput {
 					magnitudeR = 0.0;
 					normalizedMagnitudeR = 0.0;
 				}
-				float percentageRX = (normalizedRX * normalizedMagnitudeR) * 100;
-				float percentageRY = (normalizedRY * normalizedMagnitudeR) * 100;
+				int8_t percentageRX = int8_t((normalizedRX * normalizedMagnitudeR) * 100);
+				int8_t percentageRY = int8_t((normalizedRY * normalizedMagnitudeR) * 100);
 
 				// Left Trigger
 				float LT = (float)controllerState.Gamepad.bLeftTrigger;
-				float percentageLT = 0;
+				int8_t percentageLT = 0;
 				if(LT > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
 				{
 					float normalizedLT = (LT - XINPUT_GAMEPAD_TRIGGER_THRESHOLD) / (255 - XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
-					percentageLT = normalizedLT * 100;
+					percentageLT = (int8_t)(normalizedLT * 100);
 				}
 
 				// Right Trigger
 				float RT = (float)controllerState.Gamepad.bRightTrigger;
-				float percentageRT = 0;
+				int8_t percentageRT = 0;
 				if(RT > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
 				{
 					float normalizedRT = (RT - XINPUT_GAMEPAD_TRIGGER_THRESHOLD) / (255 - XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
-					percentageRT = normalizedRT * 100;
+					percentageRT = (int8_t)(normalizedRT * 100);
 				}
 
 				forwarderState.buttonActivity[0] = guideButtonState.guideButton > 0 ? "Guide" : "";
 				forwarderState.buttonActivity[1] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_BACK ? "Back" : "";
 				forwarderState.buttonActivity[2] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_START ? "Start" : "";
 				forwarderState.buttonActivity[3] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_SHOULDER ? "Right Shoulder" : "";
-				forwarderState.buttonActivity[4] = percentageRT != 0 ? "Right Trigger, " + (int8_t)percentageRT: "";
+				forwarderState.buttonActivity[4] = percentageRT != 0 ? "Right Trigger, " + percentageRT: "";
 				forwarderState.buttonActivity[5] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_THUMB ? "Right Analog Stick (Pressed)" : "";
 				forwarderState.buttonActivity[6] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_SHOULDER ? "Left Shoulder" : "";
-				forwarderState.buttonActivity[7] = percentageLT != 0 ? "Left Trigger, " + (int8_t)percentageLT: "";
+				forwarderState.buttonActivity[7] = percentageLT != 0 ? "Left Trigger, " + percentageLT: "";
 				forwarderState.buttonActivity[8] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_THUMB ? "Left Analog Stick (Pressed)" : "";
-				forwarderState.buttonActivity[9] = percentageRX != 0 ? "Right Analog Stick X-axis, " + (int8_t)percentageRX: "";
-				forwarderState.buttonActivity[10] = percentageRY != 0 ? "Right Analog Stick Y-axis, " + (int8_t)percentageRY: "";
-				forwarderState.buttonActivity[11] = percentageLX != 0 ? "Left Analog Stick X-axis, " + (int8_t)percentageLX: "";
-				forwarderState.buttonActivity[12] = percentageLY != 0 ? "Left Analog Stick Y-axis, " + (int8_t)percentageLY: "";
+				forwarderState.buttonActivity[9] = percentageRX != 0 ? "Right Analog Stick X-axis, " + percentageRX: "";
+				forwarderState.buttonActivity[10] = percentageRY != 0 ? "Right Analog Stick Y-axis, " + percentageRY: "";
+				forwarderState.buttonActivity[11] = percentageLX != 0 ? "Left Analog Stick X-axis, " + percentageLX: "";
+				forwarderState.buttonActivity[12] = percentageLY != 0 ? "Left Analog Stick Y-axis, " + percentageLY: "";
 				forwarderState.buttonActivity[13] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_UP ? "DPad Up" : "";
 				forwarderState.buttonActivity[14] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_DOWN ? "DPad Down" : "";
 				forwarderState.buttonActivity[15] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_LEFT ? "DPad Left" : "";
@@ -308,15 +308,15 @@ namespace ControllerMAX_XInput {
 					output[1] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_BACK ? 100 : 0; // Back
 					output[2] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_START ? 100 : 0; // Start
 					output[3] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_SHOULDER ? 100 : 0; // Right Shoulder
-					output[4] = (int8_t)percentageRT; // Right Trigger [0 ~ 100] %
+					output[4] = percentageRT; // Right Trigger [0 ~ 100] %
 					output[5] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_THUMB ? 100 : 0; // Right Analog Stick (Pressed)
 					output[6] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_SHOULDER ? 100 : 0; // Left Shoulder
-					output[7] = (int8_t)percentageLT; // Left Trigger [0 ~ 100] %
+					output[7] = percentageLT; // Left Trigger [0 ~ 100] %
 					output[8] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_THUMB ? 100 : 0; // Left Analog Stick (Pressed)
-					output[9] = (int8_t)percentageRX; // Right Analog Stick X-axis [-100 ~ 100] %
-					output[10] = (int8_t)percentageRY; // Right Analog Stick Y-axis [-100 ~ 100] %
-					output[11] = (int8_t)percentageLX; // Left Analog Stick X-axis [-100 ~ 100] %
-					output[12] = (int8_t)percentageLY; // Left Analog Stick Y-axis [-100 ~ 100] %
+					output[9] = percentageRX; // Right Analog Stick X-axis [-100 ~ 100] %
+					output[10] = percentageRY; // Right Analog Stick Y-axis [-100 ~ 100] %
+					output[11] = percentageLX; // Left Analog Stick X-axis [-100 ~ 100] %
+					output[12] = percentageLY; // Left Analog Stick Y-axis [-100 ~ 100] %
 					output[13] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_UP ? 100 : 0; // DPad Up
 					output[14] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_DOWN ? 100 : 0; // DPad Down
 					output[15] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_LEFT ? 100 : 0; // DPad Left
@@ -342,7 +342,7 @@ namespace ControllerMAX_XInput {
 			}
 
 			// Report to UI every 200ms
-			if( (clock() - reportTimer) > 200 )
+			if( (clock() - reportTimer) > 10 )
 			{
 				worker->ReportProgress(0, forwarderState);
 				reportTimer = clock();
