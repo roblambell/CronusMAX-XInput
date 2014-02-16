@@ -199,7 +199,7 @@ namespace ControllerMAX_XInput {
 			// notifyIcon
 			// 
 			this->notifyIcon->ContextMenuStrip = this->notifyContextMenu;
-			this->notifyIcon->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
+			this->notifyIcon->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"notifyIcon.Icon")));
 			this->notifyIcon->Text = L"ControllerMAX XInput";
 			this->notifyIcon->Visible = true;
 			this->notifyIcon->DoubleClick += gcnew System::EventHandler(this, &Form1::notifyIcon_DoubleClick);
@@ -257,6 +257,7 @@ namespace ControllerMAX_XInput {
 
 		System::Void notifyIcon_DoubleClick(System::Object^ sender, System::EventArgs^  e)
 		{
+			this->Visible = true;
 			this->WindowState = FormWindowState::Normal;
 		}
 
@@ -264,6 +265,7 @@ namespace ControllerMAX_XInput {
 		{
 			if(this->WindowState == FormWindowState::Minimized)
 			{
+				this->Visible = true;
 				this->WindowState = FormWindowState::Normal;
 			}
 			else if(this->WindowState == FormWindowState::Normal)
@@ -280,6 +282,7 @@ namespace ControllerMAX_XInput {
 		System::Void Form1_Resize(System::Object^  sender, System::EventArgs^  e) {
 			if(this->WindowState == FormWindowState::Minimized)
 			{
+				this->Visible = false;
 				this->miToggleVisible->Text = L"Restore Window";
 			}
 			else if(this->WindowState == FormWindowState::Normal)
