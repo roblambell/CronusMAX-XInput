@@ -1,4 +1,4 @@
 ControllerMAX-XInput
 ====================
 
-XInput plugin for GPP/CronusMAX device
+XInput plugin for GPP/ControllerMAX device
