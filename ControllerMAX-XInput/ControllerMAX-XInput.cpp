@@ -2,9 +2,10 @@
 
 #include "stdafx.h"
 
+#include <ctime>
 #include <math.h>
 #include <iostream>
-#include <ctime>
+#include <windows.h>
 
 /*  Define the API model (PLUGIN or DIRECT) before including the 
 *  gcapi.h header file.
@@ -78,7 +79,7 @@ namespace ControllerMAX_XInput {
 	{
 
 		bool cancellationPending = worker->CancellationPending;
-		clock_t reportTimer = clock();
+		ULONGLONG reportTimer = GetTickCount64();
 
 		FORWARDER_STATE forwarderState;
 
@@ -342,10 +343,10 @@ namespace ControllerMAX_XInput {
 			}
 
 			// Report to UI every 200ms
-			if( (clock() - reportTimer) > 200 )
+			if( (GetTickCount64() - reportTimer) > 200 )
 			{
 				worker->ReportProgress(0, forwarderState);
-				reportTimer = clock();
+				reportTimer = GetTickCount64();
 			}
 
 			Sleep(1);
