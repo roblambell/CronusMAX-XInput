@@ -121,7 +121,14 @@ namespace ControllerMAX_XInput {
 								if(delimiter_position != -1)
 								{
 									this->listView1->Items->Insert(currentRow, forwarderState.buttonActivity[i]->Substring(0, delimiter_position));
-									this->listView1->Items[currentRow]->SubItems->Add(forwarderState.buttonActivity[i]->Substring(delimiter_position+2));
+									try
+									{
+										this->listView1->Items[currentRow]->SubItems->Add(forwarderState.buttonActivity[i]->Substring(delimiter_position+2));
+									}
+									catch (System::ArgumentOutOfRangeException^)
+									{
+										// TODO: Clone userState before reporting to UI
+									}
 								}
 								else
 								{

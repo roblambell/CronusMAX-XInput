@@ -342,7 +342,7 @@ namespace ControllerMAX_XInput {
 			}
 
 			// Report to UI every 200ms
-			if( (clock() - reportTimer) > 10 )
+			if( (clock() - reportTimer) > 200 )
 			{
 				worker->ReportProgress(0, forwarderState);
 				reportTimer = clock();
