@@ -122,14 +122,17 @@ namespace ControllerMAX_XInput {
 		}
 
 		// Allocate resources and initialize the Direct API.
-		if(!gcdapi_Load())
+		if(hInsGPP != NULL)
 		{
-			FreeLibrary(hInsGPP);
-			if(!cancellationPending)
+			if(!gcdapi_Load())
 			{
-				forwarderState.errorMessage = "Unable to initiate the Direct API";
-				worker->ReportProgress(0, forwarderState);
-				cancellationPending = true;
+				FreeLibrary(hInsGPP);
+				if(!cancellationPending)
+				{
+					forwarderState.errorMessage = "Unable to initiate the Direct API";
+					worker->ReportProgress(0, forwarderState);
+					cancellationPending = true;
+				}
 			}
 		}
 
@@ -349,7 +352,11 @@ namespace ControllerMAX_XInput {
 		}
 
 		// Free API resources and unload libraries.
-		gcdapi_Unload();
+		if(hInsGPP != NULL)
+		{
+			gcdapi_Unload();
+			
+		}
 		FreeLibrary(hInsGPP);
 		FreeLibrary(hGetProcIDDLL);
 
