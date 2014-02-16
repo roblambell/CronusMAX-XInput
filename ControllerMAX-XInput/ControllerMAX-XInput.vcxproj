@@ -100,10 +100,12 @@
     </ClInclude>
     <ClInclude Include="gcapi.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
+    <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Form1.resX">
