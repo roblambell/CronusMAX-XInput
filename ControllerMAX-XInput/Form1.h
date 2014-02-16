@@ -53,6 +53,7 @@ namespace ControllerMAX_XInput {
 
 	private: System::ComponentModel::IContainer^  components;
 
+	private: static bool isProcessingBackgroundWorkerReport = false;
 
 	private:
 
@@ -75,64 +76,70 @@ namespace ControllerMAX_XInput {
 		// This event handler updates the progress bar. 
 		void backgroundWorker1_ProgressChanged( Object^ /*sender*/, ProgressChangedEventArgs^ e )
 		{
-
-			FORWARDER_STATE forwarderState = (FORWARDER_STATE)e->UserState;
-
-			if(forwarderState.errorMessage)
+			if( !isProcessingBackgroundWorkerReport )
 			{
-				this->toolStripStatusLabel1->Text = forwarderState.errorMessage;
-			}
-			else
-			{
-				// Update status
-				if(!forwarderState.deviceConnected && !forwarderState.controllerConnected)
+				isProcessingBackgroundWorkerReport = true;
+
+				FORWARDER_STATE forwarderState = (FORWARDER_STATE)e->UserState;
+
+				if(forwarderState.errorMessage)
 				{
-					this->toolStripStatusLabel1->Text = "Waiting for controller and device";
-				}
-				else if(forwarderState.deviceConnected && !forwarderState.controllerConnected)
-				{
-					this->toolStripStatusLabel1->Text = "Waiting for controller";
-				}
-				else if(!forwarderState.deviceConnected && forwarderState.controllerConnected)
-				{
-					this->toolStripStatusLabel1->Text = "Waiting for device";
+					this->toolStripStatusLabel1->Text = forwarderState.errorMessage;
 				}
 				else
 				{
-					this->toolStripStatusLabel1->Text = "Ready";
-				}
+					// Update status
+					if(!forwarderState.deviceConnected && !forwarderState.controllerConnected)
+					{
+						this->toolStripStatusLabel1->Text = "Waiting for controller and device";
+					}
+					else if(forwarderState.deviceConnected && !forwarderState.controllerConnected)
+					{
+						this->toolStripStatusLabel1->Text = "Waiting for controller";
+					}
+					else if(!forwarderState.deviceConnected && forwarderState.controllerConnected)
+					{
+						this->toolStripStatusLabel1->Text = "Waiting for device";
+					}
+					else
+					{
+						this->toolStripStatusLabel1->Text = "Ready";
+					}
 
-				// Update button activity
-				this->listView1->Items->Clear();
-				if(forwarderState.controllerConnected)
-				{
-					this->listView1->Enabled = true;
+					// Update button activity
+					this->listView1->Items->Clear();
+					if(forwarderState.controllerConnected)
+					{
+						this->listView1->Enabled = true;
 
-					int currentRow = 0;
+						int currentRow = 0;
 
-					for(int i = 0; i <= 20; i++) {
-						if(forwarderState.buttonActivity[i] != "")
-						{
-							int delimiter_position = forwarderState.buttonActivity[i]->LastIndexOf(",");
-							if(delimiter_position != -1)
+						for(int i = 0; i <= 20; i++) {
+							if(forwarderState.buttonActivity[i] != "")
 							{
-								this->listView1->Items->Insert(currentRow, forwarderState.buttonActivity[i]->Substring(0, delimiter_position));
-								this->listView1->Items[currentRow]->SubItems->Add(forwarderState.buttonActivity[i]->Substring(delimiter_position+2));
+								int delimiter_position = forwarderState.buttonActivity[i]->LastIndexOf(",");
+								if(delimiter_position != -1)
+								{
+									this->listView1->Items->Insert(currentRow, forwarderState.buttonActivity[i]->Substring(0, delimiter_position));
+									this->listView1->Items[currentRow]->SubItems->Add(forwarderState.buttonActivity[i]->Substring(delimiter_position+2));
+								}
+								else
+								{
+									this->listView1->Items->Insert(currentRow, forwarderState.buttonActivity[i]);
+								}
+								currentRow++;
 							}
-							else
-							{
-								this->listView1->Items->Insert(currentRow, forwarderState.buttonActivity[i]);
-							}
-							currentRow++;
 						}
 					}
+					else
+					{
+						this->listView1->Enabled = false;
+					}
 				}
-				else
-				{
-					this->listView1->Enabled = false;
-				}
-			}
 
+				isProcessingBackgroundWorkerReport = false;
+			}
+			
 		}
 
 #pragma region Windows Form Designer generated code
@@ -257,6 +264,7 @@ namespace ControllerMAX_XInput {
 
 		System::Void notifyIcon_DoubleClick(System::Object^ sender, System::EventArgs^  e)
 		{
+			this->WindowState = FormWindowState::Minimized;
 			this->Visible = true;
 			this->WindowState = FormWindowState::Normal;
 		}
