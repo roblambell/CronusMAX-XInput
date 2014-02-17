@@ -215,8 +215,11 @@ namespace ControllerMAX_XInput {
 					normalizedMagnitudeL = 0.0;
 				}
 
-				int8_t percentageLX = int8_t((normalizedLX * normalizedMagnitudeL) * 100);
-				int8_t percentageLY = int8_t((normalizedLY * normalizedMagnitudeL) * 100);
+				int8_t percentageLX = (int8_t)(normalizedLX * normalizedMagnitudeL * 100);
+				int8_t percentageLY = (int8_t)(normalizedLY * normalizedMagnitudeL * 100);
+
+				// CM expects Y-axis -100 up, 100 down
+				percentageLY *= -1;
 
 				// Right Thumb
 				float RX = controllerState.Gamepad.sThumbRX;
@@ -249,8 +252,11 @@ namespace ControllerMAX_XInput {
 					magnitudeR = 0.0;
 					normalizedMagnitudeR = 0.0;
 				}
-				int8_t percentageRX = int8_t((normalizedRX * normalizedMagnitudeR) * 100);
-				int8_t percentageRY = int8_t((normalizedRY * normalizedMagnitudeR) * 100);
+				int8_t percentageRX = (int8_t)(normalizedRX * normalizedMagnitudeR * 100);
+				int8_t percentageRY = (int8_t)(normalizedRY * normalizedMagnitudeR * 100);
+
+				// CM expects Y-axis -100 up, 100 down
+				percentageRY *= -1;
 
 				// Left Trigger
 				float LT = (float)controllerState.Gamepad.bLeftTrigger;
@@ -299,8 +305,8 @@ namespace ControllerMAX_XInput {
 
 					// Vibrate XInput controller
 					// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
-					int rumbleR = (int)(65535 * ((float)report.rumble[0] / 100));
-					int rumbleL = (int)(65535 * ((float)report.rumble[1] / 100));
+					int rumbleR = (int)(655.35 * (float)report.rumble[0]);
+					int rumbleL = (int)(655.35 * (float)report.rumble[1]);
 					XInputVibrate(controllerNum, rumbleR, rumbleL);
 
 					// Output to console
@@ -342,7 +348,7 @@ namespace ControllerMAX_XInput {
 				gcapi_Write(output);
 			}
 
-			// Report to UI every 200ms
+			// Wait at least 200ms between reports to UI
 			if( (GetTickCount64() - reportTimer) > 200 )
 			{
 				worker->ReportProgress(0, forwarderState);
@@ -352,7 +358,7 @@ namespace ControllerMAX_XInput {
 			Sleep(1);
 		}
 
-		// Free API resources and unload libraries.
+		// Free API resources and unload libraries
 		if(hInsGPP != NULL)
 		{
 			gcdapi_Unload();
