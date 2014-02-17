@@ -127,7 +127,9 @@ namespace ControllerMAX_XInput {
 									}
 									catch (System::ArgumentOutOfRangeException^)
 									{
-										// TODO: Clone userState before reporting to UI
+										// Non-critical race condition, forwarderState may have changed:
+										// - We could miss some rows or add empty ones
+										// - We could include `Value (%)` in the first column
 									}
 								}
 								else

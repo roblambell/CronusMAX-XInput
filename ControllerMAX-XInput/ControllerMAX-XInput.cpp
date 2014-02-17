@@ -351,6 +351,7 @@ namespace ControllerMAX_XInput {
 			// Wait at least 200ms between reports to UI
 			if( (GetTickCount64() - reportTimer) > 200 )
 			{
+				// TODO: Clone userState before reporting to UI
 				worker->ReportProgress(0, forwarderState);
 				reportTimer = GetTickCount64();
 			}
