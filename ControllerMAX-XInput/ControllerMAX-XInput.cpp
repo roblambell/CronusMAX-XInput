@@ -35,6 +35,9 @@ namespace ControllerMAX_XInput {
 
 	using namespace System::ComponentModel;
 
+	int iround(double num) {
+		return (num > 0.0) ? (int)floor(num + 0.5) : (int)ceil(num - 0.5);
+	}
 
 	bool XInputIsConnected(int controllerNum)
 	{
@@ -215,8 +218,8 @@ namespace ControllerMAX_XInput {
 					normalizedMagnitudeL = 0.0;
 				}
 
-				int8_t percentageLX = (int8_t)(normalizedLX * normalizedMagnitudeL * 100);
-				int8_t percentageLY = (int8_t)(normalizedLY * normalizedMagnitudeL * 100);
+				int8_t percentageLX = (int8_t)iround(normalizedLX * normalizedMagnitudeL * 100);
+				int8_t percentageLY = (int8_t)iround(normalizedLY * normalizedMagnitudeL * 100);
 
 				// CM expects Y-axis -100 up, 100 down
 				percentageLY *= -1;
@@ -252,8 +255,8 @@ namespace ControllerMAX_XInput {
 					magnitudeR = 0.0;
 					normalizedMagnitudeR = 0.0;
 				}
-				int8_t percentageRX = (int8_t)(normalizedRX * normalizedMagnitudeR * 100);
-				int8_t percentageRY = (int8_t)(normalizedRY * normalizedMagnitudeR * 100);
+				int8_t percentageRX = (int8_t)iround(normalizedRX * normalizedMagnitudeR * 100);
+				int8_t percentageRY = (int8_t)iround(normalizedRY * normalizedMagnitudeR * 100);
 
 				// CM expects Y-axis -100 up, 100 down
 				percentageRY *= -1;
