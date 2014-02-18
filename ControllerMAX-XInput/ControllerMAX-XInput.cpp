@@ -183,43 +183,12 @@ namespace ControllerMAX_XInput {
 				XInputGetState(controllerNum, &controllerState);
 				XInputGetSecretState(controllerNum, guideButtonState);
 
-				// Dead zones & normalized values 
-				// http://msdn.microsoft.com/en-us/library/windows/desktop/ee417001(v=vs.85).aspx
-
 				// Left Thumb
 				float LX = controllerState.Gamepad.sThumbLX;
 				float LY = controllerState.Gamepad.sThumbLY;
 
-				// determine how far the controller is pushed	
-				float magnitudeL = sqrt(LX*LX + LY*LY); 
-
-				// determine the direction the controller is pushed	
-				float normalizedLX = LX / magnitudeL; 
-				float normalizedLY = LY / magnitudeL;
-
-				float normalizedMagnitudeL = 0;
-
-				// check if the controller is outside a circular dead zone
-				if (magnitudeL > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-				{
-					// clip the magnitude at its expected maximum value
-					if (magnitudeL > 32767) magnitudeL = 32767;
-
-					// adjust magnitude relative to the end of the dead zone
-					magnitudeL -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-
-					// optionally normalize the magnitude with respect to its expected range
-					// giving a magnitude value of 0.0 to 1.0
-					normalizedMagnitudeL = magnitudeL / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-				}
-				else // if the controller is in the dead zone zero out the magnitude
-				{
-					magnitudeL = 0.0;
-					normalizedMagnitudeL = 0.0;
-				}
-
-				int8_t percentageLX = (int8_t)iround(normalizedLX * normalizedMagnitudeL * 100);
-				int8_t percentageLY = (int8_t)iround(normalizedLY * normalizedMagnitudeL * 100);
+				int8_t percentageLX = (int8_t)iround((LX / 32767) * 100);
+				int8_t percentageLY = (int8_t)iround((LY / 32767) * 100);
 
 				// CM expects Y-axis -100 up, 100 down
 				percentageLY *= -1;
@@ -228,56 +197,19 @@ namespace ControllerMAX_XInput {
 				float RX = controllerState.Gamepad.sThumbRX;
 				float RY = controllerState.Gamepad.sThumbRY;
 
-				// determine how far the controller is pushed
-				float magnitudeR = sqrt(RX*RX + RY*RY);
-
-				// determine the direction the controller is pushed
-				float normalizedRX = RX / magnitudeR;
-				float normalizedRY = RY / magnitudeR;
-
-				float normalizedMagnitudeR = 0;
-
-				// check if the controller is outside a circular dead zone
-				if (magnitudeR > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
-				{
-					// clip the magnitude at its expected maximum value
-					if (magnitudeR > 32767) magnitudeR = 32767;
-
-					// adjust magnitude relative to the end of the dead zone
-					magnitudeR -= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-
-					// optionally normalize the magnitude with respect to its expected range
-					// giving a magnitude value of 0.0 to 1.0
-					normalizedMagnitudeR = magnitudeR / (32767 - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
-				}
-				else // if the controller is in the dead zone zero out the magnitude
-				{
-					magnitudeR = 0.0;
-					normalizedMagnitudeR = 0.0;
-				}
-				int8_t percentageRX = (int8_t)iround(normalizedRX * normalizedMagnitudeR * 100);
-				int8_t percentageRY = (int8_t)iround(normalizedRY * normalizedMagnitudeR * 100);
+				int8_t percentageRX = (int8_t)iround((RX / 32767) * 100);
+				int8_t percentageRY = (int8_t)iround((RY / 32767) * 100);
 
 				// CM expects Y-axis -100 up, 100 down
 				percentageRY *= -1;
 
 				// Left Trigger
 				float LT = (float)controllerState.Gamepad.bLeftTrigger;
-				int8_t percentageLT = 0;
-				if(LT > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-				{
-					float normalizedLT = (LT - XINPUT_GAMEPAD_TRIGGER_THRESHOLD) / (255 - XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
-					percentageLT = (int8_t)(normalizedLT * 100);
-				}
+				int8_t percentageLT = (int8_t)iround((LT / 255) * 100);
 
 				// Right Trigger
 				float RT = (float)controllerState.Gamepad.bRightTrigger;
-				int8_t percentageRT = 0;
-				if(RT > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-				{
-					float normalizedRT = (RT - XINPUT_GAMEPAD_TRIGGER_THRESHOLD) / (255 - XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
-					percentageRT = (int8_t)(normalizedRT * 100);
-				}
+				int8_t percentageRT = (int8_t)iround((RT / 255) * 100);
 
 				forwarderState.buttonActivity[0] = guideButtonState.guideButton > 0 ? "Guide" : "";
 				forwarderState.buttonActivity[1] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_BACK ? "Back" : "";
@@ -308,8 +240,8 @@ namespace ControllerMAX_XInput {
 
 					// Vibrate XInput controller
 					// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
-					int rumbleR = (int)(655.35 * (float)report.rumble[0]);
-					int rumbleL = (int)(655.35 * (float)report.rumble[1]);
+					int rumbleR = iround(655.35 * (float)report.rumble[0]);
+					int rumbleL = iround(655.35 * (float)report.rumble[1]);
 					XInputVibrate(controllerNum, rumbleR, rumbleL);
 
 					// Output to console
