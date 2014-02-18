@@ -330,7 +330,7 @@ namespace ControllerMAX_XInput {
 					output[16] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_RIGHT ? 100 : 0; // DPad Right
 					output[17] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_Y ? 100 : 0; // Y
 					output[18] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_B ? 100 : 0; // B
-					output[19] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_X ? 100 : 0; // A
+					output[19] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_A ? 100 : 0; // A
 					output[20] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_X ? 100 : 0; // X
 					gcapi_Write(output);
 				}
