@@ -39,23 +39,6 @@ namespace ControllerMAX_XInput {
 		return (num > 0.0) ? (int)floor(num + 0.5) : (int)ceil(num - 0.5);
 	}
 
-	bool XInputIsConnected(int controllerNum)
-	{
-		XINPUT_STATE controllerState;
-
-		// Get the state
-		DWORD Result = XInputGetState(controllerNum, &controllerState);
-
-		if(Result == ERROR_SUCCESS)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
 	void XInputVibrate(int controllerNum, int leftVal, int rightVal)
 	{
 		// Create a Vibration State
@@ -140,22 +123,25 @@ namespace ControllerMAX_XInput {
 			}
 		}
 
-		// Guide button is not exposed via XInput API
+		// Alternative to XInput API, includes guide button and works with up x360ce
 		// https://github.com/DieKatzchen/GuideButtonPoller
-		struct XINPUT_SECRET_STATE
+		// More info on unnamed ordinals:
+		// https://code.google.com/p/x360ce/issues/detail?id=417
+		struct ControllerStruct
 		{
-			unsigned long eventCount;  // event counter, increases with every controller event,
-			// but for some reason not by one.
-			unsigned short up:1, down:1, left:1, right:1, start:1, back:1, l3:1, r3:1,
-				lButton:1, rButton:1, guideButton:1, unknown:1, aButton:1,
-				bButton:1, xButton:1, yButton:1; // button state bitfield
-			unsigned char lTrigger;  // Left Trigger
-			unsigned char rTrigger;  // Right Trigger
-			short lJoyY;  // Left Joystick Y
-			short lJoyx;  // Left Joystick X
-			short rJoyY;  // Right Joystick Y 
-			short rJoyX;  // Right Joystick X
+			unsigned long eventCount;  // increases with every controller event, but not by one.
+			unsigned short up:1, down:1, left:1, right:1, start:1, back:1, leftThumb:1, 
+				rightThumb:1, leftShoulder:1, rightShoulder:1, guideButton:1, unknown:1, 
+				aButton:1, bButton:1, xButton:1, yButton:1;
+			unsigned char leftTrigger;
+			unsigned char rightTrigger;
+			short thumbLX;
+			short thumbLY;
+			short thumbRX;
+			short thumbRY;
 		};
+
+		//First create an HINSTANCE of the xinput1_3.dll
 		HINSTANCE hGetProcIDDLL = LoadLibrary(L"xinput1_3.dll");
 		if(hGetProcIDDLL == NULL)
 		{
@@ -166,26 +152,41 @@ namespace ControllerMAX_XInput {
 				cancellationPending = true;
 			}
 		}
-		typedef int(__stdcall * pICFUNC)(int, XINPUT_SECRET_STATE &);
-		pICFUNC XInputGetSecretState = pICFUNC(GetProcAddress(HMODULE(hGetProcIDDLL), (LPCSTR)100));
 
-		XINPUT_STATE controllerState;
-		XINPUT_SECRET_STATE guideButtonState;
+		//Get the address of ordinal 100.
+		FARPROC lpfnGetProcessID = GetProcAddress(HMODULE(hGetProcIDDLL), (LPCSTR)100);
 
+		//typedef the function. It takes an int and a pointer to a ControllerStruct and returns an error code
+		//as an int.  it's 0 for no error and 1167 for "controller not present".  presumably there are others
+		//but I never saw them.  It won't cause a crash on error, it just won't update the data.
+		typedef int(__stdcall * pICFUNC)(int, ControllerStruct &);
+
+		//Assign it to XInputGetStateEx for easier use
+		pICFUNC XInputGetStateEx;
+		XInputGetStateEx = pICFUNC(lpfnGetProcessID);
+
+		//Create in an instance of the ControllerStruct
+		ControllerStruct controllerState;
 
 		while ( !cancellationPending )
 		{
-			forwarderState.controllerConnected = XInputIsConnected(controllerNum);
-			forwarderState.deviceConnected = gcapi_IsConnected() ? true : false;
+			if(XInputGetStateEx(controllerNum, controllerState) == 1167)
+			{
+				forwarderState.controllerConnected = false;
+			}
+			else
+			{
+				forwarderState.controllerConnected = true;
+			}
 
+			forwarderState.deviceConnected = gcapi_IsConnected() ? true : false;
+			
 			if(forwarderState.controllerConnected)
 			{
-				XInputGetState(controllerNum, &controllerState);
-				XInputGetSecretState(controllerNum, guideButtonState);
 
 				// Left Thumb
-				float LX = controllerState.Gamepad.sThumbLX;
-				float LY = controllerState.Gamepad.sThumbLY;
+				float LX = controllerState.thumbLX;
+				float LY = controllerState.thumbLY;
 
 				int8_t percentageLX = (int8_t)iround((LX / 32767) * 100);
 				int8_t percentageLY = (int8_t)iround((LY / 32767) * 100);
@@ -194,8 +195,8 @@ namespace ControllerMAX_XInput {
 				percentageLY *= -1;
 
 				// Right Thumb
-				float RX = controllerState.Gamepad.sThumbRX;
-				float RY = controllerState.Gamepad.sThumbRY;
+				float RX = controllerState.thumbRX;
+				float RY = controllerState.thumbRY;
 
 				int8_t percentageRX = (int8_t)iround((RX / 32767) * 100);
 				int8_t percentageRY = (int8_t)iround((RY / 32767) * 100);
@@ -204,34 +205,34 @@ namespace ControllerMAX_XInput {
 				percentageRY *= -1;
 
 				// Left Trigger
-				float LT = (float)controllerState.Gamepad.bLeftTrigger;
+				float LT = (float)controllerState.leftTrigger;
 				int8_t percentageLT = (int8_t)iround((LT / 255) * 100);
 
 				// Right Trigger
-				float RT = (float)controllerState.Gamepad.bRightTrigger;
+				float RT = (float)controllerState.rightTrigger;
 				int8_t percentageRT = (int8_t)iround((RT / 255) * 100);
 
-				forwarderState.buttonActivity[0] = guideButtonState.guideButton > 0 ? "Guide" : "";
-				forwarderState.buttonActivity[1] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_BACK ? "Back" : "";
-				forwarderState.buttonActivity[2] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_START ? "Start" : "";
-				forwarderState.buttonActivity[3] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_SHOULDER ? "Right Shoulder" : "";
+				forwarderState.buttonActivity[0] = controllerState.guideButton ? "Guide" : "";
+				forwarderState.buttonActivity[1] = controllerState.back ? "Back" : "";
+				forwarderState.buttonActivity[2] = controllerState.start ? "Start" : "";
+				forwarderState.buttonActivity[3] = controllerState.rightShoulder ? "Right Shoulder" : "";
 				forwarderState.buttonActivity[4] = percentageRT != 0 ? "Right Trigger, " + percentageRT: "";
-				forwarderState.buttonActivity[5] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_THUMB ? "Right Analog Stick (Pressed)" : "";
-				forwarderState.buttonActivity[6] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_SHOULDER ? "Left Shoulder" : "";
+				forwarderState.buttonActivity[5] = controllerState.rightThumb ? "Right Analog Stick (Pressed)" : "";
+				forwarderState.buttonActivity[6] = controllerState.leftShoulder ? "Left Shoulder" : "";
 				forwarderState.buttonActivity[7] = percentageLT != 0 ? "Left Trigger, " + percentageLT: "";
-				forwarderState.buttonActivity[8] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_THUMB ? "Left Analog Stick (Pressed)" : "";
+				forwarderState.buttonActivity[8] = controllerState.leftThumb ? "Left Analog Stick (Pressed)" : "";
 				forwarderState.buttonActivity[9] = percentageRX != 0 ? "Right Analog Stick X-axis, " + percentageRX: "";
 				forwarderState.buttonActivity[10] = percentageRY != 0 ? "Right Analog Stick Y-axis, " + percentageRY: "";
 				forwarderState.buttonActivity[11] = percentageLX != 0 ? "Left Analog Stick X-axis, " + percentageLX: "";
 				forwarderState.buttonActivity[12] = percentageLY != 0 ? "Left Analog Stick Y-axis, " + percentageLY: "";
-				forwarderState.buttonActivity[13] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_UP ? "DPad Up" : "";
-				forwarderState.buttonActivity[14] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_DOWN ? "DPad Down" : "";
-				forwarderState.buttonActivity[15] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_LEFT ? "DPad Left" : "";
-				forwarderState.buttonActivity[16] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_RIGHT ? "DPad Right" : "";
-				forwarderState.buttonActivity[17] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_A ? "A" : "";
-				forwarderState.buttonActivity[18] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_B ? "B" : "";
-				forwarderState.buttonActivity[19] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_X ? "X" : "";
-				forwarderState.buttonActivity[20] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_Y ? "Y" : "";
+				forwarderState.buttonActivity[13] = controllerState.up ? "DPad Up" : "";
+				forwarderState.buttonActivity[14] = controllerState.down ? "DPad Down" : "";
+				forwarderState.buttonActivity[15] = controllerState.left ? "DPad Left" : "";
+				forwarderState.buttonActivity[16] = controllerState.right ? "DPad Right" : "";
+				forwarderState.buttonActivity[17] = controllerState.aButton ? "A" : "";
+				forwarderState.buttonActivity[18] = controllerState.bButton ? "B" : "";
+				forwarderState.buttonActivity[19] = controllerState.xButton ? "X" : "";
+				forwarderState.buttonActivity[20] = controllerState.yButton ? "Y" : "";
 
 				// Output to console and XInput controller
 				if(forwarderState.deviceConnected)
@@ -246,27 +247,27 @@ namespace ControllerMAX_XInput {
 
 					// Output to console
 					int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
-					output[0] = guideButtonState.guideButton > 0 ? 100 : 0; // Guide
-					output[1] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_BACK ? 100 : 0; // Back
-					output[2] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_START ? 100 : 0; // Start
-					output[3] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_SHOULDER ? 100 : 0; // Right Shoulder
+					output[0] = controllerState.guideButton ? 100 : 0; // Guide
+					output[1] = controllerState.back ? 100 : 0; // Back
+					output[2] = controllerState.start ? 100 : 0; // Start
+					output[3] = controllerState.rightShoulder ? 100 : 0; // Right Shoulder
 					output[4] = percentageRT; // Right Trigger [0 ~ 100] %
-					output[5] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_RIGHT_THUMB ? 100 : 0; // Right Analog Stick (Pressed)
-					output[6] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_SHOULDER ? 100 : 0; // Left Shoulder
+					output[5] = controllerState.rightThumb ? 100 : 0; // Right Analog Stick (Pressed)
+					output[6] = controllerState.leftShoulder ? 100 : 0; // Left Shoulder
 					output[7] = percentageLT; // Left Trigger [0 ~ 100] %
-					output[8] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_LEFT_THUMB ? 100 : 0; // Left Analog Stick (Pressed)
+					output[8] = controllerState.leftThumb ? 100 : 0; // Left Analog Stick (Pressed)
 					output[9] = percentageRX; // Right Analog Stick X-axis [-100 ~ 100] %
 					output[10] = percentageRY; // Right Analog Stick Y-axis [-100 ~ 100] %
 					output[11] = percentageLX; // Left Analog Stick X-axis [-100 ~ 100] %
 					output[12] = percentageLY; // Left Analog Stick Y-axis [-100 ~ 100] %
-					output[13] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_UP ? 100 : 0; // DPad Up
-					output[14] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_DOWN ? 100 : 0; // DPad Down
-					output[15] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_LEFT ? 100 : 0; // DPad Left
-					output[16] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_DPAD_RIGHT ? 100 : 0; // DPad Right
-					output[17] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_Y ? 100 : 0; // Y
-					output[18] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_B ? 100 : 0; // B
-					output[19] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_A ? 100 : 0; // A
-					output[20] = controllerState.Gamepad.wButtons &XINPUT_GAMEPAD_X ? 100 : 0; // X
+					output[13] = controllerState.up ? 100 : 0; // DPad Up
+					output[14] = controllerState.down ? 100 : 0; // DPad Down
+					output[15] = controllerState.left ? 100 : 0; // DPad Left
+					output[16] = controllerState.right ? 100 : 0; // DPad Right
+					output[17] = controllerState.yButton ? 100 : 0; // Y
+					output[18] = controllerState.bButton ? 100 : 0; // B
+					output[19] = controllerState.aButton ? 100 : 0; // A
+					output[20] = controllerState.xButton ? 100 : 0; // X
 					gcapi_Write(output);
 				}
 
@@ -284,7 +285,7 @@ namespace ControllerMAX_XInput {
 			}
 
 			// Wait at least 200ms between reports to UI
-			if( (GetTickCount64() - reportTimer) > 200 )
+			if( (GetTickCount64() - reportTimer) > 100 )
 			{
 				// TODO: Clone userState before reporting to UI
 				worker->ReportProgress(0, forwarderState);
@@ -293,6 +294,9 @@ namespace ControllerMAX_XInput {
 
 			Sleep(1);
 		}
+
+		// Don't leave them trembling
+		XInputVibrate(controllerNum, 0, 0);
 
 		// Free API resources and unload libraries
 		if(hInsGPP != NULL)
