@@ -8,14 +8,14 @@
 #include <windows.h>
 
 /*  Define the API model (PLUGIN or DIRECT) before including the 
-*  gcapi.h header file.
-*/
+ *  gcapi.h header file.
+ */
 #define GCAPI_DIRECT
 #include "gcapi.h"
 
 /*  Direct API exported functions. Check gcapi.h for a more detailed 
-*  description.
-*/
+ *  description.
+ */
 GCDAPI_Load gcdapi_Load = NULL;
 GCDAPI_Unload gcdapi_Unload = NULL;
 GCAPI_IsConnected gcapi_IsConnected = NULL;
@@ -25,31 +25,12 @@ GCAPI_Write gcapi_Write = NULL;
 GCAPI_GetTimeVal gcapi_GetTimeVal = NULL;
 GCAPI_CalcPressTime gcapi_CalcPressTime = NULL;
 
-/*  XInput API Header & Library.
-*/
-#include <XInput.h>
-#pragma comment(lib, "XInput.lib")
-
-
 namespace ControllerMAX_XInput {
 
 	using namespace System::ComponentModel;
 
 	int iround(double num) {
 		return (num > 0.0) ? (int)floor(num + 0.5) : (int)ceil(num - 0.5);
-	}
-
-	void XInputVibrate(int controllerNum, int leftVal, int rightVal)
-	{
-		// Create a Vibration State
-		XINPUT_VIBRATION Vibration;
-
-		// Set the Vibration Values
-		Vibration.wLeftMotorSpeed = leftVal;
-		Vibration.wRightMotorSpeed = rightVal;
-
-		// Vibrate the controller
-		XInputSetState(controllerNum, &Vibration);
 	}
 
 	public value class FORWARDER_STATE
@@ -123,11 +104,10 @@ namespace ControllerMAX_XInput {
 			}
 		}
 
-		// Alternative to XInput API, includes guide button and works with up x360ce
-		// https://github.com/DieKatzchen/GuideButtonPoller
-		// More info on unnamed ordinals:
-		// https://code.google.com/p/x360ce/issues/detail?id=417
-		struct ControllerStruct
+		//
+		// XInput Structures
+		//
+		struct XInputStateEx
 		{
 			unsigned long eventCount;  // increases with every controller event, but not by one.
 			unsigned short up:1, down:1, left:1, right:1, start:1, back:1, leftThumb:1, 
@@ -141,9 +121,15 @@ namespace ControllerMAX_XInput {
 			short thumbRY;
 		};
 
-		//First create an HINSTANCE of the xinput1_3.dll
-		HINSTANCE hGetProcIDDLL = LoadLibrary(L"xinput1_3.dll");
-		if(hGetProcIDDLL == NULL)
+		struct XInputVibration
+		{
+			WORD                                wLeftMotorSpeed;
+			WORD                                wRightMotorSpeed;
+		};
+
+		// Create hInstance of xinput1_3
+		HINSTANCE hInsXInput1_3 = LoadLibrary(L"xinput1_3.dll");
+		if(hInsXInput1_3 == NULL)
 		{
 			if(!cancellationPending)
 			{
@@ -153,36 +139,57 @@ namespace ControllerMAX_XInput {
 			}
 		}
 
-		//Get the address of ordinal 100.
-		FARPROC lpfnGetProcessID = GetProcAddress(HMODULE(hGetProcIDDLL), (LPCSTR)100);
+		// Alternative to XInputGetState
+		// https://github.com/DieKatzchen/GuideButtonPoller
+		// Details on unnamed ordinals:
+		// https://code.google.com/p/x360ce/issues/detail?id=417
 
-		//typedef the function. It takes an int and a pointer to a ControllerStruct and returns an error code
-		//as an int.  it's 0 for no error and 1167 for "controller not present".  presumably there are others
-		//but I never saw them.  It won't cause a crash on error, it just won't update the data.
-		typedef int(__stdcall * pICFUNC)(int, ControllerStruct &);
+		// Get the address of ordinal 100 (unnamed: XInputGetStateEx) - exposes Guide button
+		FARPROC pointerToDLLFunction1 = GetProcAddress(HMODULE(hInsXInput1_3), (LPCSTR)100);
 
-		//Assign it to XInputGetStateEx for easier use
-		pICFUNC XInputGetStateEx;
-		XInputGetStateEx = pICFUNC(lpfnGetProcessID);
+		// typedef the function. It takes an int and a pointer to an XInputStateEx and returns an error code
+		// as an int. It's 0 for no error and 1167 for "controller not present". Presumably there are others
+		// but I never saw them. It won't cause a crash on error, it just won't update the data.
+		typedef int(__stdcall * pICFUNC1)(int, XInputStateEx &);
 
-		//Create in an instance of the ControllerStruct
-		ControllerStruct controllerState;
+		// Assign XInputGetStateEx for easier use
+		pICFUNC1 XInputGetStateEx;
+		XInputGetStateEx = pICFUNC1(pointerToDLLFunction1);
+
+		// Get the pointer to XInputSetState (ordinal 3)
+		FARPROC pointerToDLLFunction2 = GetProcAddress(HMODULE(hInsXInput1_3), "XInputSetState");
+
+		typedef int(__stdcall * pICFUNC2)(int, XInputVibration &);
+
+		// Assign XInputSetState for easier use
+		pICFUNC2 XInputSetState;
+		XInputSetState = pICFUNC2(pointerToDLLFunction2);
+
+		// Create a Controller State
+		XInputStateEx controllerState;
+
+		// Create a Vibration State
+		XInputVibration vibration;
 
 		while ( !cancellationPending )
 		{
-			if(XInputGetStateEx(controllerNum, controllerState) == 1167)
+
+			DWORD result = XInputGetStateEx(controllerNum, controllerState);
+
+			if(result == ERROR_SUCCESS)
 			{
-				forwarderState.controllerConnected = false;
+				forwarderState.controllerConnected = true;
 			}
 			else
 			{
-				forwarderState.controllerConnected = true;
+				forwarderState.controllerConnected = false;
 			}
 
 			forwarderState.deviceConnected = gcapi_IsConnected() ? true : false;
 			
 			if(forwarderState.controllerConnected)
 			{
+				XInputGetStateEx(controllerNum, controllerState);
 
 				// Left Thumb
 				float LX = controllerState.thumbLX;
@@ -233,7 +240,7 @@ namespace ControllerMAX_XInput {
 				forwarderState.buttonActivity[18] = controllerState.bButton ? "B" : "";
 				forwarderState.buttonActivity[19] = controllerState.xButton ? "X" : "";
 				forwarderState.buttonActivity[20] = controllerState.yButton ? "Y" : "";
-
+				
 				// Output to console and XInput controller
 				if(forwarderState.deviceConnected)
 				{
@@ -241,9 +248,9 @@ namespace ControllerMAX_XInput {
 
 					// Vibrate XInput controller
 					// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
-					int rumbleR = iround(655.35 * (float)report.rumble[0]);
-					int rumbleL = iround(655.35 * (float)report.rumble[1]);
-					XInputVibrate(controllerNum, rumbleR, rumbleL);
+					vibration.wRightMotorSpeed = iround(655.35 * (float)report.rumble[0]);
+					vibration.wLeftMotorSpeed = iround(655.35 * (float)report.rumble[1]);
+					XInputSetState(controllerNum, vibration);
 
 					// Output to console
 					int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
@@ -284,7 +291,7 @@ namespace ControllerMAX_XInput {
 				gcapi_Write(output);
 			}
 
-			// Wait at least 200ms between reports to UI
+			// Wait at least 100ms between reports to UI
 			if( (GetTickCount64() - reportTimer) > 100 )
 			{
 				// TODO: Clone userState before reporting to UI
@@ -295,17 +302,14 @@ namespace ControllerMAX_XInput {
 			Sleep(1);
 		}
 
-		// Don't leave them trembling
-		XInputVibrate(controllerNum, 0, 0);
 
 		// Free API resources and unload libraries
 		if(hInsGPP != NULL)
 		{
-			gcdapi_Unload();
-			
+			gcdapi_Unload();	
 		}
 		FreeLibrary(hInsGPP);
-		FreeLibrary(hGetProcIDDLL);
+		FreeLibrary(hInsXInput1_3);
 
 		e->Cancel = true;
 	}
