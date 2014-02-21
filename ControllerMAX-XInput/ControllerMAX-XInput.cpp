@@ -173,18 +173,9 @@ namespace ControllerMAX_XInput {
 
 		while ( !cancellationPending )
 		{
-
 			DWORD result = XInputGetStateEx(controllerNum, controllerState);
 
-			if(result == ERROR_SUCCESS)
-			{
-				forwarderState.controllerConnected = true;
-			}
-			else
-			{
-				forwarderState.controllerConnected = false;
-			}
-
+			forwarderState.controllerConnected = result == ERROR_SUCCESS ? true : false;
 			forwarderState.deviceConnected = gcapi_IsConnected() ? true : false;
 			
 			if(forwarderState.controllerConnected)
