@@ -27,7 +27,7 @@ ___
 
 If you need to use [x360ce (Xbox 360 Controller Emulator)](https://code.google.com/p/x360ce/wiki/Whatisx360ceandhowuseIt)  
 3\. Place `x360ce.exe` in `C:\Program Files (x86)\Gtuner` and run.  
-4\. Allow it to create x360ce.ini and xinput1_3.dll, configure if needed, then close x360ce.  
+4\. Allow it to create `x360ce.ini` and `xinput1_3.dll`, configure if needed, then close x360ce.  
 ___
 
  5\. Run `ControllerMAX-XInput.exe`
