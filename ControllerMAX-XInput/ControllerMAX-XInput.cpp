@@ -180,8 +180,6 @@ namespace ControllerMAX_XInput {
 			
 			if(forwarderState.controllerConnected)
 			{
-				XInputGetStateEx(controllerNum, controllerState);
-
 				// Left Thumb
 				float LX = controllerState.thumbLX;
 				float LY = controllerState.thumbLY;
