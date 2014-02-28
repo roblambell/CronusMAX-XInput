@@ -8,5 +8,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gcapi.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Gtuner Plugin.rc" />
   </ItemGroup>
 </Project>
