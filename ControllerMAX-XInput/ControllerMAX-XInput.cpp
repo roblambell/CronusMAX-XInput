@@ -25,6 +25,10 @@ GCAPI_Write gcapi_Write = NULL;
 GCAPI_GetTimeVal gcapi_GetTimeVal = NULL;
 GCAPI_CalcPressTime gcapi_CalcPressTime = NULL;
 
+HINSTANCE hInsGPP = NULL;
+GCAPI_REPORT report = {0};
+int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
+
 namespace ControllerMAX_XInput {
 
 	using namespace System::ComponentModel;
@@ -41,6 +45,64 @@ namespace ControllerMAX_XInput {
 		static bool deviceConnected;
 		static array<System::String^> ^buttonActivity = gcnew array<System::String^>(21);
 	};
+
+
+	/* GPC Language I/O Functions
+	 */
+
+	// Returns the current value of a controller entry
+	int get_val( int button )
+	{
+		return report.input[button].value;
+	}
+
+	// Overwrites the current value of a controller entry
+	void set_val( int button, int value )
+	{
+		output[button] = value;
+	}
+
+	// Returns the previous value of a controller entry
+	int get_lval( int button )
+	{
+		return report.input[button].prev_value;
+	}
+
+	// Returns the elapsed activation time (pressing) of a controller entry
+	int get_ptime( int button )
+	{
+		return gcapi_CalcPressTime(report.input[button].press_tv);
+	}
+
+	// Returns TRUE when detected activation (pressing) of a controller entry
+	bool event_press( int button )
+	{
+		return get_val(button) > 0 && get_lval(button) == 0 ? true : false;
+	}
+
+	// Returns TRUE when detected deactivation (releasing) of a controller entry
+	bool event_release( int button )
+	{
+		return get_val(button) == 0 && get_lval(button) > 0 ? true : false;
+	}
+
+	// Swap the values between two controller entries
+	void swap( int button1, int button2 )
+	{
+		output[button1] = report.input[button2].value;
+		output[button2] = report.input[button1].value;
+	}
+
+	// Blocks forwarding of a controller entry for a short period of time
+	void block( int button, int time )
+	{
+		// TODO: Flag as blocked for <time>, starting at <now>, check this in main loop
+		output[button] = 0;
+	}
+
+	// TODO: sensitivity   Adjust the sensitivity of a controller entry
+	// TODO: deadzone      Remove the deadzone of a pair of entries, usually of analog sticks
+	// TODO: stickize      Transform the values of mouse input (or Wiimote IR) to analog stick
 
 	void XInputForwarder(int controllerNum, BackgroundWorker^ worker, DoWorkEventArgs ^ e )
 	{
@@ -264,6 +326,7 @@ namespace ControllerMAX_XInput {
 					output[18] = controllerState.bButton ? 100 : 0; // B
 					output[19] = controllerState.aButton ? 100 : 0; // A
 					output[20] = controllerState.xButton ? 100 : 0; // X
+					
 					gcapi_Write(output);
 				}
 
