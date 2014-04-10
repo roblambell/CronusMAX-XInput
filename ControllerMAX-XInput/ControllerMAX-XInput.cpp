@@ -27,7 +27,18 @@ GCAPI_CalcPressTime gcapi_CalcPressTime = NULL;
 
 HINSTANCE hInsGPP = NULL;
 GCAPI_REPORT report = {0};
+
+int8_t xinputInput[GCAPI_OUTPUT_TOTAL] = {0};
+
+// report.input and XInput merged as per config
+int8_t mergedInput[GCAPI_OUTPUT_TOTAL] = {0}; 
+
 int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
+
+/*  Configuration
+ */
+wchar_t iniFilePath[100] = L"./ControllerMAX-XInput.ini";
+
 
 namespace ControllerMAX_XInput {
 
@@ -46,14 +57,13 @@ namespace ControllerMAX_XInput {
 		static array<System::String^> ^buttonActivity = gcnew array<System::String^>(21);
 	};
 
-
 	/* GPC Language I/O Functions
 	 */
 
 	// Returns the current value of a controller entry
 	int get_val( int button )
 	{
-		return report.input[button].value;
+		return mergedInput[button];
 	}
 
 	// Overwrites the current value of a controller entry
@@ -65,12 +75,14 @@ namespace ControllerMAX_XInput {
 	// Returns the previous value of a controller entry
 	int get_lval( int button )
 	{
+		// TODO: XInput controller input
 		return report.input[button].prev_value;
 	}
 
 	// Returns the elapsed activation time (pressing) of a controller entry
 	int get_ptime( int button )
 	{
+		// TODO: XInput controller input
 		return gcapi_CalcPressTime(report.input[button].press_tv);
 	}
 
@@ -89,8 +101,8 @@ namespace ControllerMAX_XInput {
 	// Swap the values between two controller entries
 	void swap( int button1, int button2 )
 	{
-		output[button1] = report.input[button2].value;
-		output[button2] = report.input[button1].value;
+		output[button1] = mergedInput[button2];
+		output[button2] = mergedInput[button1];
 	}
 
 	// Blocks forwarding of a controller entry for a short period of time
@@ -115,6 +127,10 @@ namespace ControllerMAX_XInput {
 		HINSTANCE hInsGPP = NULL;
 		GCAPI_REPORT report = {0};
 		int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
+
+		// Load configuration
+		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, iniFilePath) ? true : false;
+		bool applySteeringCorrection = GetPrivateProfileInt(L"Options", L"SteeringCorrection", 0, iniFilePath) ? true : false;
 
 		// Load the Direct API Library
 		hInsGPP = LoadLibrary(TEXT("gcdapi.dll"));
@@ -270,63 +286,124 @@ namespace ControllerMAX_XInput {
 				float RT = (float)controllerState.rightTrigger;
 				int8_t percentageRT = (int8_t)iround((RT / 255) * 100);
 
-				forwarderState.buttonActivity[0] = controllerState.guideButton ? "Guide" : "";
-				forwarderState.buttonActivity[1] = controllerState.back ? "Back" : "";
-				forwarderState.buttonActivity[2] = controllerState.start ? "Start" : "";
-				forwarderState.buttonActivity[3] = controllerState.rightShoulder ? "Right Shoulder" : "";
-				forwarderState.buttonActivity[4] = percentageRT != 0 ? "Right Trigger, " + percentageRT: "";
-				forwarderState.buttonActivity[5] = controllerState.rightThumb ? "Right Analog Stick (Pressed)" : "";
-				forwarderState.buttonActivity[6] = controllerState.leftShoulder ? "Left Shoulder" : "";
-				forwarderState.buttonActivity[7] = percentageLT != 0 ? "Left Trigger, " + percentageLT: "";
-				forwarderState.buttonActivity[8] = controllerState.leftThumb ? "Left Analog Stick (Pressed)" : "";
-				forwarderState.buttonActivity[9] = percentageRX != 0 ? "Right Analog Stick X-axis, " + percentageRX: "";
-				forwarderState.buttonActivity[10] = percentageRY != 0 ? "Right Analog Stick Y-axis, " + percentageRY: "";
-				forwarderState.buttonActivity[11] = percentageLX != 0 ? "Left Analog Stick X-axis, " + percentageLX: "";
-				forwarderState.buttonActivity[12] = percentageLY != 0 ? "Left Analog Stick Y-axis, " + percentageLY: "";
-				forwarderState.buttonActivity[13] = controllerState.up ? "DPad Up" : "";
-				forwarderState.buttonActivity[14] = controllerState.down ? "DPad Down" : "";
-				forwarderState.buttonActivity[15] = controllerState.left ? "DPad Left" : "";
-				forwarderState.buttonActivity[16] = controllerState.right ? "DPad Right" : "";
-				forwarderState.buttonActivity[17] = controllerState.aButton ? "A" : "";
-				forwarderState.buttonActivity[18] = controllerState.bButton ? "B" : "";
-				forwarderState.buttonActivity[19] = controllerState.xButton ? "X" : "";
-				forwarderState.buttonActivity[20] = controllerState.yButton ? "Y" : "";
+				// XInput controller input
+				xinputInput[0] = controllerState.guideButton ? 100 : 0; // Guide
+				xinputInput[1] = controllerState.back ? 100 : 0; // Back
+				xinputInput[2] = controllerState.start ? 100 : 0; // Start
+				xinputInput[3] = controllerState.rightShoulder ? 100 : 0; // Right Shoulder
+				xinputInput[4] = percentageRT; // Right Trigger [0 ~ 100] %
+				xinputInput[5] = controllerState.rightThumb ? 100 : 0; // Right Analog Stick (Pressed)
+				xinputInput[6] = controllerState.leftShoulder ? 100 : 0; // Left Shoulder
+				xinputInput[7] = percentageLT; // Left Trigger [0 ~ 100] %
+				xinputInput[8] = controllerState.leftThumb ? 100 : 0; // Left Analog Stick (Pressed)
+				xinputInput[9] = percentageRX; // Right Analog Stick X-axis [-100 ~ 100] %
+				xinputInput[10] = percentageRY; // Right Analog Stick Y-axis [-100 ~ 100] %
+				xinputInput[11] = percentageLX; // Left Analog Stick X-axis [-100 ~ 100] %
+				xinputInput[12] = percentageLY; // Left Analog Stick Y-axis [-100 ~ 100] %
+				xinputInput[13] = controllerState.up ? 100 : 0; // DPad Up
+				xinputInput[14] = controllerState.down ? 100 : 0; // DPad Down
+				xinputInput[15] = controllerState.left ? 100 : 0; // DPad Left
+				xinputInput[16] = controllerState.right ? 100 : 0; // DPad Right
+				xinputInput[17] = controllerState.yButton ? 100 : 0; // Y
+				xinputInput[18] = controllerState.bButton ? 100 : 0; // B
+				xinputInput[19] = controllerState.aButton ? 100 : 0; // A
+				xinputInput[20] = controllerState.xButton ? 100 : 0; // X
+
+				if(forwarderState.deviceConnected)
+				{
+					gcapi_Read(&report);
+				}
+
+				// Merge or disregard CM input data (auth controller)
+				if(passthruInput && forwarderState.deviceConnected)
+				{
+					for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
+					{
+						mergedInput[i] = xinputInput[i] ? xinputInput[i] : report.input[i].value;
+					}
+				}
+				else
+				{
+					for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
+					{
+						mergedInput[i] = xinputInput[i];
+					}
+				}
+
+				forwarderState.buttonActivity[0] = mergedInput[0] ? "Guide" : "";
+				forwarderState.buttonActivity[1] = mergedInput[1] ? "Back" : "";
+				forwarderState.buttonActivity[2] = mergedInput[2] ? "Start" : "";
+				forwarderState.buttonActivity[3] = mergedInput[3] ? "Right Shoulder" : "";
+				forwarderState.buttonActivity[4] = mergedInput[4] != 0 ? "Right Trigger, " + mergedInput[4]: "";
+				forwarderState.buttonActivity[5] = mergedInput[5] ? "Right Analog Stick (Pressed)" : "";
+				forwarderState.buttonActivity[6] = mergedInput[6] ? "Left Shoulder" : "";
+				forwarderState.buttonActivity[7] = mergedInput[7] != 0 ? "Left Trigger, " + mergedInput[7]: "";
+				forwarderState.buttonActivity[8] = mergedInput[8] ? "Left Analog Stick (Pressed)" : "";
+				forwarderState.buttonActivity[9] = mergedInput[9] != 0 ? "Right Analog Stick X-axis, " + mergedInput[9]: "";
+				forwarderState.buttonActivity[10] = mergedInput[10] != 0 ? "Right Analog Stick Y-axis, " + mergedInput[10]: "";
+				forwarderState.buttonActivity[11] = mergedInput[11] != 0 ? "Left Analog Stick X-axis, " + mergedInput[11]: "";
+				forwarderState.buttonActivity[12] = mergedInput[12] != 0 ? "Left Analog Stick Y-axis, " + mergedInput[12]: "";
+				forwarderState.buttonActivity[13] = mergedInput[13] ? "DPad Up" : "";
+				forwarderState.buttonActivity[14] = mergedInput[14] ? "DPad Down" : "";
+				forwarderState.buttonActivity[15] = mergedInput[15] ? "DPad Left" : "";
+				forwarderState.buttonActivity[16] = mergedInput[16] ? "DPad Right" : "";
+				forwarderState.buttonActivity[17] = mergedInput[17] ? "A" : "";
+				forwarderState.buttonActivity[18] = mergedInput[18] ? "B" : "";
+				forwarderState.buttonActivity[19] = mergedInput[19] ? "X" : "";
+				forwarderState.buttonActivity[20] = mergedInput[20] ? "Y" : "";
 				
 				// Output to console and XInput controller
 				if(forwarderState.deviceConnected)
 				{
-					gcapi_Read(&report);
-
 					// Vibrate XInput controller
 					// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
 					vibration.wRightMotorSpeed = iround(655.35 * (float)report.rumble[0]);
 					vibration.wLeftMotorSpeed = iround(655.35 * (float)report.rumble[1]);
 					XInputSetState(controllerNum, vibration);
 
-					// Output to console
-					int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
-					output[0] = controllerState.guideButton ? 100 : 0; // Guide
-					output[1] = controllerState.back ? 100 : 0; // Back
-					output[2] = controllerState.start ? 100 : 0; // Start
-					output[3] = controllerState.rightShoulder ? 100 : 0; // Right Shoulder
-					output[4] = percentageRT; // Right Trigger [0 ~ 100] %
-					output[5] = controllerState.rightThumb ? 100 : 0; // Right Analog Stick (Pressed)
-					output[6] = controllerState.leftShoulder ? 100 : 0; // Left Shoulder
-					output[7] = percentageLT; // Left Trigger [0 ~ 100] %
-					output[8] = controllerState.leftThumb ? 100 : 0; // Left Analog Stick (Pressed)
-					output[9] = percentageRX; // Right Analog Stick X-axis [-100 ~ 100] %
-					output[10] = percentageRY; // Right Analog Stick Y-axis [-100 ~ 100] %
-					output[11] = percentageLX; // Left Analog Stick X-axis [-100 ~ 100] %
-					output[12] = percentageLY; // Left Analog Stick Y-axis [-100 ~ 100] %
-					output[13] = controllerState.up ? 100 : 0; // DPad Up
-					output[14] = controllerState.down ? 100 : 0; // DPad Down
-					output[15] = controllerState.left ? 100 : 0; // DPad Left
-					output[16] = controllerState.right ? 100 : 0; // DPad Right
-					output[17] = controllerState.yButton ? 100 : 0; // Y
-					output[18] = controllerState.bButton ? 100 : 0; // B
-					output[19] = controllerState.aButton ? 100 : 0; // A
-					output[20] = controllerState.xButton ? 100 : 0; // X
+					// Set output
+					for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
+					{
+						output[i] = mergedInput[i];
+					}
 					
+					// Execute scripts
+
+					// Steering Correction
+					if(applySteeringCorrection)
+					{
+						if(get_val(XB1_LX)<0)
+						{
+								set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) -23);
+						}
+						if(get_val(XB1_LX)>0)
+						{
+								set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) +23);
+						}
+					}
+
+					forwarderState.buttonActivity[0] = output[0] ? "Guide" : "";
+					forwarderState.buttonActivity[1] = output[1] ? "Back" : "";
+					forwarderState.buttonActivity[2] = output[2] ? "Start" : "";
+					forwarderState.buttonActivity[3] = output[3] ? "Right Shoulder" : "";
+					forwarderState.buttonActivity[4] = output[4] != 0 ? "Right Trigger, " + output[4]: "";
+					forwarderState.buttonActivity[5] = output[5] ? "Right Analog Stick (Pressed)" : "";
+					forwarderState.buttonActivity[6] = output[6] ? "Left Shoulder" : "";
+					forwarderState.buttonActivity[7] = output[7] != 0 ? "Left Trigger, " + output[7]: "";
+					forwarderState.buttonActivity[8] = output[8] ? "Left Analog Stick (Pressed)" : "";
+					forwarderState.buttonActivity[9] = output[9] != 0 ? "Right Analog Stick X-axis, " + output[9]: "";
+					forwarderState.buttonActivity[10] = output[10] != 0 ? "Right Analog Stick Y-axis, " + output[10]: "";
+					forwarderState.buttonActivity[11] = output[11] != 0 ? "Left Analog Stick X-axis, " + output[11]: "";
+					forwarderState.buttonActivity[12] = output[12] != 0 ? "Left Analog Stick Y-axis, " + output[12]: "";
+					forwarderState.buttonActivity[13] = output[13] ? "DPad Up" : "";
+					forwarderState.buttonActivity[14] = output[14] ? "DPad Down" : "";
+					forwarderState.buttonActivity[15] = output[15] ? "DPad Left" : "";
+					forwarderState.buttonActivity[16] = output[16] ? "DPad Right" : "";
+					forwarderState.buttonActivity[17] = output[17] ? "A" : "";
+					forwarderState.buttonActivity[18] = output[18] ? "B" : "";
+					forwarderState.buttonActivity[19] = output[19] ? "X" : "";
+					forwarderState.buttonActivity[20] = output[20] ? "Y" : "";
+
 					gcapi_Write(output);
 				}
 
