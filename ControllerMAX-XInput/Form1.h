@@ -52,6 +52,7 @@ namespace ControllerMAX_XInput {
 
 
 	private: System::ComponentModel::IContainer^  components;
+	private: System::Windows::Forms::ColumnHeader^  columnHeader3;
 
 	private: static bool isProcessingBackgroundWorkerReport = false;
 
@@ -106,6 +107,31 @@ namespace ControllerMAX_XInput {
 						this->toolStripStatusLabel1->Text = "Ready";
 					}
 
+					// Check output console and set button labels
+					// Just Xbox for now..
+					array<System::String^> ^buttonLabel = gcnew array<System::String^>(21);
+					buttonLabel[0] = "Guide";
+					buttonLabel[1] = "Back";
+					buttonLabel[2] = "Start";
+					buttonLabel[3] = "Right Shoulder";
+					buttonLabel[4] = "Right Trigger";
+					buttonLabel[5] = "Right Analog Stick (Pressed)";
+					buttonLabel[6] = "Left Shoulder";
+					buttonLabel[7] = "Left Trigger";
+					buttonLabel[8] = "Left Analog Stick (Pressed)";
+					buttonLabel[9] = "Right Analog Stick X-axis";
+					buttonLabel[10] = "Right Analog Stick Y-axis";
+					buttonLabel[11] = "Left Analog Stick X-axis";
+					buttonLabel[12] = "Left Analog Stick Y-axis";
+					buttonLabel[13] = "DPad Up";
+					buttonLabel[14] = "DPad Down";
+					buttonLabel[15] = "DPad Left";
+					buttonLabel[16] = "DPad Right";
+					buttonLabel[17] = "Y";
+					buttonLabel[18] = "B";
+					buttonLabel[19] = "A";
+					buttonLabel[20] = "X";
+
 					// Update button activity
 					this->listView1->Items->Clear();
 					if(forwarderState.controllerConnected)
@@ -115,29 +141,33 @@ namespace ControllerMAX_XInput {
 						int currentRow = 0;
 
 						for(int i = 0; i <= 20; i++) {
-							if(forwarderState.buttonActivity[i] != "")
+
+							if((int)forwarderState.input[i] != (int)0 || (int)forwarderState.output[i] != (int)0)
 							{
-								int delimiter_position = forwarderState.buttonActivity[i]->LastIndexOf(",");
-								if(delimiter_position != -1)
+								this->listView1->Items->Insert(currentRow, buttonLabel[i]);
+
+								// Prefix >= 0 with a plus sign
+								if((int)forwarderState.input[i] >= (int)0)
 								{
-									this->listView1->Items->Insert(currentRow, forwarderState.buttonActivity[i]->Substring(0, delimiter_position));
-									try
-									{
-										this->listView1->Items[currentRow]->SubItems->Add(forwarderState.buttonActivity[i]->Substring(delimiter_position+2));
-									}
-									catch (System::ArgumentOutOfRangeException^)
-									{
-										// Non-critical race condition, forwarderState may have changed:
-										// - We could miss some rows or add empty ones
-										// - We could include `Value (%)` in the first column
-									}
+									this->listView1->Items[currentRow]->SubItems->Add("+" + Convert::ToString(forwarderState.input[i]));
 								}
 								else
 								{
-									this->listView1->Items->Insert(currentRow, forwarderState.buttonActivity[i]);
+									this->listView1->Items[currentRow]->SubItems->Add(Convert::ToString(forwarderState.input[i]));
 								}
+
+								if((int)forwarderState.output[i] >= (int)0)
+								{
+									this->listView1->Items[currentRow]->SubItems->Add("+" + Convert::ToString(forwarderState.output[i]));
+								}
+								else
+								{
+									this->listView1->Items[currentRow]->SubItems->Add(Convert::ToString(forwarderState.output[i]));
+								}
+
 								currentRow++;
 							}
+
 						}
 					}
 					else
@@ -165,6 +195,7 @@ namespace ControllerMAX_XInput {
 			this->listView1 = (gcnew System::Windows::Forms::ListView());
 			this->columnHeader1 = (gcnew System::Windows::Forms::ColumnHeader());
 			this->columnHeader2 = (gcnew System::Windows::Forms::ColumnHeader());
+			this->columnHeader3 = (gcnew System::Windows::Forms::ColumnHeader());
 			this->notifyIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
 			this->notifyContextMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
 			this->miToggleVisible = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -191,7 +222,8 @@ namespace ControllerMAX_XInput {
 			// 
 			// listView1
 			// 
-			this->listView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(2) {this->columnHeader1, this->columnHeader2});
+			this->listView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(3) {this->columnHeader1, this->columnHeader2, 
+				this->columnHeader3});
 			this->listView1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->listView1->Enabled = false;
 			this->listView1->HeaderStyle = System::Windows::Forms::ColumnHeaderStyle::Nonclickable;
@@ -205,12 +237,17 @@ namespace ControllerMAX_XInput {
 			// columnHeader1
 			// 
 			this->columnHeader1->Text = L"Button";
-			this->columnHeader1->Width = 150;
+			this->columnHeader1->Width = 162;
 			// 
 			// columnHeader2
 			// 
-			this->columnHeader2->Text = L"Value (%)";
-			this->columnHeader2->Width = 75;
+			this->columnHeader2->Text = L"Input";
+			this->columnHeader2->Width = 44;
+			// 
+			// columnHeader3
+			// 
+			this->columnHeader3->Text = L"Output";
+			this->columnHeader3->Width = 44;
 			// 
 			// notifyIcon
 			// 

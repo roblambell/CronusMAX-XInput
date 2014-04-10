@@ -37,11 +37,12 @@ int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
 
 /*  Configuration
  */
-wchar_t iniFilePath[100] = L"./ControllerMAX-XInput.ini";
+wchar_t iniFilePath[100] = L"./ControllerMAX-XInput.ini\0";
 
 
 namespace ControllerMAX_XInput {
 
+	using namespace System;
 	using namespace System::ComponentModel;
 
 	int iround(double num) {
@@ -54,7 +55,8 @@ namespace ControllerMAX_XInput {
 		System::String^ errorMessage;
 		static bool controllerConnected;
 		static bool deviceConnected;
-		static array<System::String^> ^buttonActivity = gcnew array<System::String^>(21);
+		static array<int^> ^input = gcnew array<int^>(21);
+		static array<int^> ^output = gcnew array<int^>(21);
 	};
 
 	/* GPC Language I/O Functions
@@ -126,7 +128,6 @@ namespace ControllerMAX_XInput {
 
 		HINSTANCE hInsGPP = NULL;
 		GCAPI_REPORT report = {0};
-		int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
 
 		// Load configuration
 		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, iniFilePath) ? true : false;
@@ -201,8 +202,8 @@ namespace ControllerMAX_XInput {
 
 		struct XInputVibration
 		{
-			WORD                                wLeftMotorSpeed;
-			WORD                                wRightMotorSpeed;
+			WORD wLeftMotorSpeed;
+			WORD wRightMotorSpeed;
 		};
 
 		// Create hInstance of xinput1_3
@@ -330,27 +331,11 @@ namespace ControllerMAX_XInput {
 					}
 				}
 
-				forwarderState.buttonActivity[0] = mergedInput[0] ? "Guide" : "";
-				forwarderState.buttonActivity[1] = mergedInput[1] ? "Back" : "";
-				forwarderState.buttonActivity[2] = mergedInput[2] ? "Start" : "";
-				forwarderState.buttonActivity[3] = mergedInput[3] ? "Right Shoulder" : "";
-				forwarderState.buttonActivity[4] = mergedInput[4] != 0 ? "Right Trigger, " + mergedInput[4]: "";
-				forwarderState.buttonActivity[5] = mergedInput[5] ? "Right Analog Stick (Pressed)" : "";
-				forwarderState.buttonActivity[6] = mergedInput[6] ? "Left Shoulder" : "";
-				forwarderState.buttonActivity[7] = mergedInput[7] != 0 ? "Left Trigger, " + mergedInput[7]: "";
-				forwarderState.buttonActivity[8] = mergedInput[8] ? "Left Analog Stick (Pressed)" : "";
-				forwarderState.buttonActivity[9] = mergedInput[9] != 0 ? "Right Analog Stick X-axis, " + mergedInput[9]: "";
-				forwarderState.buttonActivity[10] = mergedInput[10] != 0 ? "Right Analog Stick Y-axis, " + mergedInput[10]: "";
-				forwarderState.buttonActivity[11] = mergedInput[11] != 0 ? "Left Analog Stick X-axis, " + mergedInput[11]: "";
-				forwarderState.buttonActivity[12] = mergedInput[12] != 0 ? "Left Analog Stick Y-axis, " + mergedInput[12]: "";
-				forwarderState.buttonActivity[13] = mergedInput[13] ? "DPad Up" : "";
-				forwarderState.buttonActivity[14] = mergedInput[14] ? "DPad Down" : "";
-				forwarderState.buttonActivity[15] = mergedInput[15] ? "DPad Left" : "";
-				forwarderState.buttonActivity[16] = mergedInput[16] ? "DPad Right" : "";
-				forwarderState.buttonActivity[17] = mergedInput[17] ? "A" : "";
-				forwarderState.buttonActivity[18] = mergedInput[18] ? "B" : "";
-				forwarderState.buttonActivity[19] = mergedInput[19] ? "X" : "";
-				forwarderState.buttonActivity[20] = mergedInput[20] ? "Y" : "";
+				// Input to report to UI
+				for(uint8_t i=0; i<=20; i++)
+				{
+					forwarderState.input[i] = Convert::ToInt32(mergedInput[i]);
+				}
 				
 				// Output to console and XInput controller
 				if(forwarderState.deviceConnected)
@@ -372,37 +357,15 @@ namespace ControllerMAX_XInput {
 					// Steering Correction
 					if(applySteeringCorrection)
 					{
-						if(get_val(XB1_LX)<0)
+						if(get_val(XB1_LX) < 0)
 						{
-								set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) -23);
+							set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) - 23);
 						}
-						if(get_val(XB1_LX)>0)
+						if(get_val(XB1_LX) > 0)
 						{
-								set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) +23);
+							set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) + 23);
 						}
 					}
-
-					forwarderState.buttonActivity[0] = output[0] ? "Guide" : "";
-					forwarderState.buttonActivity[1] = output[1] ? "Back" : "";
-					forwarderState.buttonActivity[2] = output[2] ? "Start" : "";
-					forwarderState.buttonActivity[3] = output[3] ? "Right Shoulder" : "";
-					forwarderState.buttonActivity[4] = output[4] != 0 ? "Right Trigger, " + output[4]: "";
-					forwarderState.buttonActivity[5] = output[5] ? "Right Analog Stick (Pressed)" : "";
-					forwarderState.buttonActivity[6] = output[6] ? "Left Shoulder" : "";
-					forwarderState.buttonActivity[7] = output[7] != 0 ? "Left Trigger, " + output[7]: "";
-					forwarderState.buttonActivity[8] = output[8] ? "Left Analog Stick (Pressed)" : "";
-					forwarderState.buttonActivity[9] = output[9] != 0 ? "Right Analog Stick X-axis, " + output[9]: "";
-					forwarderState.buttonActivity[10] = output[10] != 0 ? "Right Analog Stick Y-axis, " + output[10]: "";
-					forwarderState.buttonActivity[11] = output[11] != 0 ? "Left Analog Stick X-axis, " + output[11]: "";
-					forwarderState.buttonActivity[12] = output[12] != 0 ? "Left Analog Stick Y-axis, " + output[12]: "";
-					forwarderState.buttonActivity[13] = output[13] ? "DPad Up" : "";
-					forwarderState.buttonActivity[14] = output[14] ? "DPad Down" : "";
-					forwarderState.buttonActivity[15] = output[15] ? "DPad Left" : "";
-					forwarderState.buttonActivity[16] = output[16] ? "DPad Right" : "";
-					forwarderState.buttonActivity[17] = output[17] ? "A" : "";
-					forwarderState.buttonActivity[18] = output[18] ? "B" : "";
-					forwarderState.buttonActivity[19] = output[19] ? "X" : "";
-					forwarderState.buttonActivity[20] = output[20] ? "Y" : "";
 
 					gcapi_Write(output);
 				}
@@ -420,10 +383,15 @@ namespace ControllerMAX_XInput {
 				gcapi_Write(output);
 			}
 
+			// Output to report to UI
+			for(uint8_t i=0; i<=20; i++)
+			{
+				forwarderState.output[i] = Convert::ToInt32(output[i]);
+			}
+
 			// Wait at least 100ms between reports to UI
 			if( (GetTickCount64() - reportTimer) > 100 )
 			{
-				// TODO: Clone userState before reporting to UI
 				worker->ReportProgress(0, forwarderState);
 				reportTimer = GetTickCount64();
 			}
