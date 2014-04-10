@@ -65,7 +65,7 @@ namespace ControllerMAX_XInput {
 	// Returns the current value of a controller entry
 	int get_val( int button )
 	{
-		return mergedInput[button];
+		return output[button];
 	}
 
 	// Overwrites the current value of a controller entry
@@ -103,8 +103,8 @@ namespace ControllerMAX_XInput {
 	// Swap the values between two controller entries
 	void swap( int button1, int button2 )
 	{
-		output[button1] = mergedInput[button2];
-		output[button2] = mergedInput[button1];
+		output[button1] = output[button2];
+		output[button2] = output[button1];
 	}
 
 	// Blocks forwarding of a controller entry for a short period of time
@@ -132,6 +132,13 @@ namespace ControllerMAX_XInput {
 		// Load configuration
 		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, iniFilePath) ? true : false;
 		bool applySteeringCorrection = GetPrivateProfileInt(L"Options", L"SteeringCorrection", 0, iniFilePath) ? true : false;
+		int deadzoneRX = GetPrivateProfileInt(L"Options", L"DeadzoneRX", 0, iniFilePath);
+		int deadzoneRY = GetPrivateProfileInt(L"Options", L"DeadzoneRY", 0, iniFilePath);
+		int deadzoneLX = GetPrivateProfileInt(L"Options", L"DeadzoneLX", 0, iniFilePath);
+		int deadzoneLY = GetPrivateProfileInt(L"Options", L"DeadzoneLY", 0, iniFilePath);
+		int steeringCorrectionMultiply = GetPrivateProfileInt(L"Options", L"SteeringCorrectionMultiply", 7, iniFilePath);
+		int steeringCorrectionDivide = GetPrivateProfileInt(L"Options", L"SteeringCorrectionDivide", 9, iniFilePath);
+		int steeringCorrectionOffset = GetPrivateProfileInt(L"Options", L"SteeringCorrectionOffset", 23, iniFilePath);
 
 		// Load the Direct API Library
 		hInsGPP = LoadLibrary(TEXT("gcdapi.dll"));
@@ -352,18 +359,18 @@ namespace ControllerMAX_XInput {
 						output[i] = mergedInput[i];
 					}
 					
-					// Execute scripts
+					// Execute scripts / modify output
 
 					// Steering Correction
 					if(applySteeringCorrection)
 					{
 						if(get_val(XB1_LX) < 0)
 						{
-							set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) - 23);
+							set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) - steeringCorrectionOffset);
 						}
 						if(get_val(XB1_LX) > 0)
 						{
-							set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) + 23);
+							set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) + steeringCorrectionOffset);
 						}
 					}
 
