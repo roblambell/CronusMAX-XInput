@@ -264,6 +264,7 @@ namespace ControllerMAX_XInput {
 			forwarderState.controllerConnected = result == ERROR_SUCCESS ? true : false;
 			forwarderState.deviceConnected = gcapi_IsConnected() ? true : false;
 			
+			// Process input
 			if(forwarderState.controllerConnected)
 			{
 				// Left Thumb
@@ -344,7 +345,7 @@ namespace ControllerMAX_XInput {
 					forwarderState.input[i] = Convert::ToInt32(mergedInput[i]);
 				}
 				
-				// Output to console and XInput controller
+				// Output to XInput controller and set output
 				if(forwarderState.deviceConnected)
 				{
 					// Vibrate XInput controller
@@ -358,35 +359,36 @@ namespace ControllerMAX_XInput {
 					{
 						output[i] = mergedInput[i];
 					}
-					
-					// Execute scripts / modify output
-
-					// Steering Correction
-					if(applySteeringCorrection)
-					{
-						if(get_val(XB1_LX) < 0)
-						{
-							set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) - steeringCorrectionOffset);
-						}
-						if(get_val(XB1_LX) > 0)
-						{
-							set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) + steeringCorrectionOffset);
-						}
-					}
-
-					gcapi_Write(output);
 				}
-
 			}
 			else if(forwarderState.deviceConnected)
 			{
-				// Passthrough mode
-				// Input from controller to console
+				// Passthru mode
+				// Input from auth controller to console
 				gcapi_Read(&report);
 				for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
 				{
 					output[i] = report.input[i].value;
 				}
+			}
+
+			// Execute scripts / modify then write output
+			if(forwarderState.deviceConnected)
+			{
+				// Steering Correction
+				if(applySteeringCorrection)
+				{
+					if(get_val(XB1_LX) < 0)
+					{
+						set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) - steeringCorrectionOffset);
+					}
+					if(get_val(XB1_LX) > 0)
+					{
+						set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) + steeringCorrectionOffset);
+					}
+				}
+
+				// Output to console
 				gcapi_Write(output);
 			}
 
