@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ControllerMAX-XInput", "Con
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gtuner Plugin", "Gtuner-Plugin\Gtuner-Plugin.vcxproj", "{DB57F735-DD4B-4398-82DB-3D43A12902F6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPC-Interpreter", "GPC-Interpreter\C-Interpreter.vcxproj", "{072231BF-B7B9-721F-D67F-62572377DC47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{DB57F735-DD4B-4398-82DB-3D43A12902F6}.Debug|Win32.Build.0 = Release|Win32
 		{DB57F735-DD4B-4398-82DB-3D43A12902F6}.Release|Win32.ActiveCfg = Release|Win32
 		{DB57F735-DD4B-4398-82DB-3D43A12902F6}.Release|Win32.Build.0 = Release|Win32
+		{072231BF-B7B9-721F-D67F-62572377DC47}.Debug|Win32.ActiveCfg = Debug|Win32
+		{072231BF-B7B9-721F-D67F-62572377DC47}.Debug|Win32.Build.0 = Debug|Win32
+		{072231BF-B7B9-721F-D67F-62572377DC47}.Release|Win32.ActiveCfg = Release|Win32
+		{072231BF-B7B9-721F-D67F-62572377DC47}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

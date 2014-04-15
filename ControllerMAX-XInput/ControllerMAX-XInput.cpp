@@ -25,14 +25,26 @@ GCAPI_Write gcapi_Write = NULL;
 GCAPI_GetTimeVal gcapi_GetTimeVal = NULL;
 GCAPI_CalcPressTime gcapi_CalcPressTime = NULL;
 
-HINSTANCE hInsGPP = NULL;
+HINSTANCE hInsDeviceAPI = NULL;
 GCAPI_REPORT report = {0};
 
+/*  GPC Interpreter type definitions / exported functions.
+ */
+typedef  uint8_t (*GPCI_Load)();
+typedef     void (*GPCI_Unload)();
+typedef  uint8_t (*GPCI_Parse)();
+typedef  uint8_t (*GPCI_Execute)(int8_t *);
+
+GPCI_Load gpci_Load = NULL;
+GPCI_Unload gpci_Unload = NULL;
+GPCI_Parse gpci_Parse = NULL;
+GPCI_Execute gpci_Execute = NULL;
+
+HINSTANCE hInsGPCInterpreter = NULL;
+
+// report.input and XInput get merged as per config
 int8_t xinputInput[GCAPI_OUTPUT_TOTAL] = {0};
-
-// report.input and XInput merged as per config
-int8_t mergedInput[GCAPI_OUTPUT_TOTAL] = {0}; 
-
+int8_t mergedInput[GCAPI_OUTPUT_TOTAL] = {0};
 int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
 
 /*  Configuration
@@ -126,23 +138,19 @@ namespace ControllerMAX_XInput {
 
 		FORWARDER_STATE forwarderState;
 
-		HINSTANCE hInsGPP = NULL;
+		HINSTANCE hInsDeviceAPI = NULL;
 		GCAPI_REPORT report = {0};
 
 		// Load configuration
 		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, iniFilePath) ? true : false;
 		bool applySteeringCorrection = GetPrivateProfileInt(L"Options", L"SteeringCorrection", 0, iniFilePath) ? true : false;
-		int deadzoneRX = GetPrivateProfileInt(L"Options", L"DeadzoneRX", 0, iniFilePath);
-		int deadzoneRY = GetPrivateProfileInt(L"Options", L"DeadzoneRY", 0, iniFilePath);
-		int deadzoneLX = GetPrivateProfileInt(L"Options", L"DeadzoneLX", 0, iniFilePath);
-		int deadzoneLY = GetPrivateProfileInt(L"Options", L"DeadzoneLY", 0, iniFilePath);
 		int steeringCorrectionMultiply = GetPrivateProfileInt(L"Options", L"SteeringCorrectionMultiply", 7, iniFilePath);
 		int steeringCorrectionDivide = GetPrivateProfileInt(L"Options", L"SteeringCorrectionDivide", 9, iniFilePath);
 		int steeringCorrectionOffset = GetPrivateProfileInt(L"Options", L"SteeringCorrectionOffset", 23, iniFilePath);
 
 		// Load the Direct API Library
-		hInsGPP = LoadLibrary(TEXT("gcdapi.dll"));
-		if(hInsGPP == NULL)
+		hInsDeviceAPI = LoadLibrary(TEXT("gcdapi.dll"));
+		if(hInsDeviceAPI == NULL)
 		{
 			if(!cancellationPending)
 			{
@@ -153,19 +161,19 @@ namespace ControllerMAX_XInput {
 		}
 
 		// Set up the pointers to DLL exported functions
-		gcdapi_Load = (GCDAPI_Load) GetProcAddress(hInsGPP, "gcdapi_Load");
-		gcdapi_Unload = (GCDAPI_Unload) GetProcAddress(hInsGPP, "gcdapi_Unload");
-		gcapi_IsConnected = (GCAPI_IsConnected) GetProcAddress(hInsGPP, "gcapi_IsConnected");
-		gcapi_GetFWVer = (GCAPI_GetFWVer) GetProcAddress(hInsGPP, "gcapi_GetFWVer");
-		gcapi_Read = (GCAPI_Read) GetProcAddress(hInsGPP, "gcapi_Read");
-		gcapi_Write = (GCAPI_Write) GetProcAddress(hInsGPP, "gcapi_Write");
-		gcapi_GetTimeVal = (GCAPI_GetTimeVal) GetProcAddress(hInsGPP, "gcapi_GetTimeVal");
-		gcapi_CalcPressTime = (GCAPI_CalcPressTime) GetProcAddress(hInsGPP, "gcapi_CalcPressTime");
+		gcdapi_Load = (GCDAPI_Load) GetProcAddress(hInsDeviceAPI, "gcdapi_Load");
+		gcdapi_Unload = (GCDAPI_Unload) GetProcAddress(hInsDeviceAPI, "gcdapi_Unload");
+		gcapi_IsConnected = (GCAPI_IsConnected) GetProcAddress(hInsDeviceAPI, "gcapi_IsConnected");
+		gcapi_GetFWVer = (GCAPI_GetFWVer) GetProcAddress(hInsDeviceAPI, "gcapi_GetFWVer");
+		gcapi_Read = (GCAPI_Read) GetProcAddress(hInsDeviceAPI, "gcapi_Read");
+		gcapi_Write = (GCAPI_Write) GetProcAddress(hInsDeviceAPI, "gcapi_Write");
+		gcapi_GetTimeVal = (GCAPI_GetTimeVal) GetProcAddress(hInsDeviceAPI, "gcapi_GetTimeVal");
+		gcapi_CalcPressTime = (GCAPI_CalcPressTime) GetProcAddress(hInsDeviceAPI, "gcapi_CalcPressTime");
 
 		if(gcdapi_Load == NULL || gcdapi_Unload == NULL || gcapi_IsConnected == NULL || gcapi_GetFWVer == NULL || 
 			gcapi_Read == NULL || gcapi_Write == NULL || gcapi_GetTimeVal == NULL || gcapi_CalcPressTime == NULL)
 		{
-				FreeLibrary(hInsGPP);
+				FreeLibrary(hInsDeviceAPI);
 				if(!cancellationPending)
 				{
 					forwarderState.errorMessage = "Error on gcdapi.dll";
@@ -176,11 +184,11 @@ namespace ControllerMAX_XInput {
 		}
 
 		// Allocate resources and initialize the Direct API.
-		if(hInsGPP != NULL)
+		if(hInsDeviceAPI != NULL)
 		{
 			if(!gcdapi_Load())
 			{
-				FreeLibrary(hInsGPP);
+				FreeLibrary(hInsDeviceAPI);
 				if(!cancellationPending)
 				{
 					forwarderState.errorMessage = "Unable to initiate the Direct API";
@@ -189,6 +197,24 @@ namespace ControllerMAX_XInput {
 				}
 			}
 		}
+
+		// Load the GPC Interpreter
+		hInsGPCInterpreter = LoadLibrary(TEXT("GPC-Interpreter.dll"));
+		if(hInsGPCInterpreter == NULL)
+		{
+			if(!cancellationPending)
+			{
+				forwarderState.errorMessage = "Error on loading GPC-Interpreter.dll";
+				worker->ReportProgress(0, forwarderState);
+				cancellationPending = true;
+			}
+		}
+
+		// Set up the pointers to DLL exported functions
+		gpci_Load = (GPCI_Load) GetProcAddress(hInsGPCInterpreter, "gpci_Load");
+		gpci_Unload = (GPCI_Unload) GetProcAddress(hInsGPCInterpreter, "gpci_Unload");
+		gpci_Parse = (GPCI_Parse) GetProcAddress(hInsGPCInterpreter, "gpci_Parse");
+		gpci_Execute = (GPCI_Execute) GetProcAddress(hInsGPCInterpreter, "gpci_Execute");
 
 		//
 		// XInput Structures
@@ -410,11 +436,12 @@ namespace ControllerMAX_XInput {
 
 
 		// Free API resources and unload libraries
-		if(hInsGPP != NULL)
+		if(hInsDeviceAPI != NULL)
 		{
 			gcdapi_Unload();	
 		}
-		FreeLibrary(hInsGPP);
+		FreeLibrary(hInsDeviceAPI);
+		FreeLibrary(hInsGPCInterpreter);
 		FreeLibrary(hInsXInput1_3);
 
 		e->Cancel = true;
