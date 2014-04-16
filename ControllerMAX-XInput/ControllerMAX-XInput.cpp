@@ -29,11 +29,12 @@ HINSTANCE hInsDeviceAPI = NULL;
 GCAPI_REPORT report = {0};
 
 /*  GPC Interpreter type definitions / exported functions.
+ *  TODO: Communicate ParseState and Message + amend/catch interpreter error handling
  */
-typedef  uint8_t (*GPCI_Load)();
-typedef     void (*GPCI_Unload)();
-typedef  uint8_t (*GPCI_Parse)();
-typedef  uint8_t (*GPCI_Execute)(int8_t *);
+typedef     void (__stdcall *GPCI_Load)();
+typedef     void (__stdcall *GPCI_Unload)();
+typedef  uint8_t (__stdcall *GPCI_Parse)(char *);
+typedef  uint8_t (__stdcall *GPCI_Execute)(char *, int8_t (*)[GCAPI_OUTPUT_TOTAL]);
 
 GPCI_Load gpci_Load = NULL;
 GPCI_Unload gpci_Unload = NULL;
@@ -67,13 +68,14 @@ namespace ControllerMAX_XInput {
 		System::String^ errorMessage;
 		static bool controllerConnected;
 		static bool deviceConnected;
+		static bool gpcScriptLoaded;
 		static array<int^> ^input = gcnew array<int^>(21);
 		static array<int^> ^output = gcnew array<int^>(21);
 	};
 
 	/* GPC Language I/O Functions
 	 */
-
+	/*
 	// Returns the current value of a controller entry
 	int get_val( int button )
 	{
@@ -129,6 +131,7 @@ namespace ControllerMAX_XInput {
 	// TODO: sensitivity   Adjust the sensitivity of a controller entry
 	// TODO: deadzone      Remove the deadzone of a pair of entries, usually of analog sticks
 	// TODO: stickize      Transform the values of mouse input (or Wiimote IR) to analog stick
+	*/
 
 	void XInputForwarder(int controllerNum, BackgroundWorker^ worker, DoWorkEventArgs ^ e )
 	{
@@ -143,10 +146,12 @@ namespace ControllerMAX_XInput {
 
 		// Load configuration
 		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, iniFilePath) ? true : false;
+		/*
 		bool applySteeringCorrection = GetPrivateProfileInt(L"Options", L"SteeringCorrection", 0, iniFilePath) ? true : false;
 		int steeringCorrectionMultiply = GetPrivateProfileInt(L"Options", L"SteeringCorrectionMultiply", 7, iniFilePath);
 		int steeringCorrectionDivide = GetPrivateProfileInt(L"Options", L"SteeringCorrectionDivide", 9, iniFilePath);
 		int steeringCorrectionOffset = GetPrivateProfileInt(L"Options", L"SteeringCorrectionOffset", 23, iniFilePath);
+		*/
 
 		// Load the Direct API Library
 		hInsDeviceAPI = LoadLibrary(TEXT("gcdapi.dll"));
@@ -215,6 +220,20 @@ namespace ControllerMAX_XInput {
 		gpci_Unload = (GPCI_Unload) GetProcAddress(hInsGPCInterpreter, "gpci_Unload");
 		gpci_Parse = (GPCI_Parse) GetProcAddress(hInsGPCInterpreter, "gpci_Parse");
 		gpci_Execute = (GPCI_Execute) GetProcAddress(hInsGPCInterpreter, "gpci_Execute");
+
+		gpci_Load();
+
+		char *gpcFileName = "ControllerMAX-XInput.gpc";
+		if(gpcFileName != "")
+		{
+			forwarderState.gpcScriptLoaded = gpci_Parse(gpcFileName) ? true : false;
+			if(!forwarderState.gpcScriptLoaded && !cancellationPending)
+			{
+				forwarderState.errorMessage = "Error on loading " + gcnew String(gpcFileName);
+				worker->ReportProgress(0, forwarderState);
+				cancellationPending = true;
+			}
+		}
 
 		//
 		// XInput Structures
@@ -402,6 +421,7 @@ namespace ControllerMAX_XInput {
 			if(forwarderState.deviceConnected)
 			{
 				// Steering Correction
+				/*
 				if(applySteeringCorrection)
 				{
 					if(get_val(XB1_LX) < 0)
@@ -412,6 +432,13 @@ namespace ControllerMAX_XInput {
 					{
 						set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) + steeringCorrectionOffset);
 					}
+				}
+				*/
+
+				// GPC interpreter
+				if(forwarderState.gpcScriptLoaded)
+				{
+					gpci_Execute(gpcFileName, &output);
 				}
 
 				// Output to console
@@ -438,7 +465,11 @@ namespace ControllerMAX_XInput {
 		// Free API resources and unload libraries
 		if(hInsDeviceAPI != NULL)
 		{
-			gcdapi_Unload();	
+			gcdapi_Unload();
+		}
+		if(hInsGPCInterpreter != NULL)
+		{
+			gpci_Unload();
 		}
 		FreeLibrary(hInsDeviceAPI);
 		FreeLibrary(hInsGPCInterpreter);

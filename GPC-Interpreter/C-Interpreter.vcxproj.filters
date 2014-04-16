@@ -81,11 +81,11 @@
     <ClCompile Include="platform\platform_win32.c">
       <Filter>Source Files\platform</Filter>
     </ClCompile>
-    <ClCompile Include="platform\library_Win32.c">
-      <Filter>Source Files\platform</Filter>
-    </ClCompile>
     <ClCompile Include="debug.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\library_Win32.c">
+      <Filter>Source Files\platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
