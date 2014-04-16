@@ -73,66 +73,6 @@ namespace ControllerMAX_XInput {
 		static array<int^> ^output = gcnew array<int^>(21);
 	};
 
-	/* GPC Language I/O Functions
-	 */
-	/*
-	// Returns the current value of a controller entry
-	int get_val( int button )
-	{
-		return output[button];
-	}
-
-	// Overwrites the current value of a controller entry
-	void set_val( int button, int value )
-	{
-		output[button] = value;
-	}
-
-	// Returns the previous value of a controller entry
-	int get_lval( int button )
-	{
-		// TODO: XInput controller input
-		return report.input[button].prev_value;
-	}
-
-	// Returns the elapsed activation time (pressing) of a controller entry
-	int get_ptime( int button )
-	{
-		// TODO: XInput controller input
-		return gcapi_CalcPressTime(report.input[button].press_tv);
-	}
-
-	// Returns TRUE when detected activation (pressing) of a controller entry
-	bool event_press( int button )
-	{
-		return get_val(button) > 0 && get_lval(button) == 0 ? true : false;
-	}
-
-	// Returns TRUE when detected deactivation (releasing) of a controller entry
-	bool event_release( int button )
-	{
-		return get_val(button) == 0 && get_lval(button) > 0 ? true : false;
-	}
-
-	// Swap the values between two controller entries
-	void swap( int button1, int button2 )
-	{
-		output[button1] = output[button2];
-		output[button2] = output[button1];
-	}
-
-	// Blocks forwarding of a controller entry for a short period of time
-	void block( int button, int time )
-	{
-		// TODO: Flag as blocked for <time>, starting at <now>, check this in main loop
-		output[button] = 0;
-	}
-
-	// TODO: sensitivity   Adjust the sensitivity of a controller entry
-	// TODO: deadzone      Remove the deadzone of a pair of entries, usually of analog sticks
-	// TODO: stickize      Transform the values of mouse input (or Wiimote IR) to analog stick
-	*/
-
 	void XInputForwarder(int controllerNum, BackgroundWorker^ worker, DoWorkEventArgs ^ e )
 	{
 
@@ -146,12 +86,6 @@ namespace ControllerMAX_XInput {
 
 		// Load configuration
 		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, iniFilePath) ? true : false;
-		/*
-		bool applySteeringCorrection = GetPrivateProfileInt(L"Options", L"SteeringCorrection", 0, iniFilePath) ? true : false;
-		int steeringCorrectionMultiply = GetPrivateProfileInt(L"Options", L"SteeringCorrectionMultiply", 7, iniFilePath);
-		int steeringCorrectionDivide = GetPrivateProfileInt(L"Options", L"SteeringCorrectionDivide", 9, iniFilePath);
-		int steeringCorrectionOffset = GetPrivateProfileInt(L"Options", L"SteeringCorrectionOffset", 23, iniFilePath);
-		*/
 
 		// Load the Direct API Library
 		hInsDeviceAPI = LoadLibrary(TEXT("gcdapi.dll"));
@@ -420,20 +354,6 @@ namespace ControllerMAX_XInput {
 			// Execute scripts / modify then write output
 			if(forwarderState.deviceConnected)
 			{
-				// Steering Correction
-				/*
-				if(applySteeringCorrection)
-				{
-					if(get_val(XB1_LX) < 0)
-					{
-						set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) - steeringCorrectionOffset);
-					}
-					if(get_val(XB1_LX) > 0)
-					{
-						set_val(XB1_LX, ((get_val(XB1_LX) * steeringCorrectionMultiply) / steeringCorrectionDivide) + steeringCorrectionOffset);
-					}
-				}
-				*/
 
 				// GPC interpreter
 				if(forwarderState.gpcScriptLoaded)

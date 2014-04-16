@@ -7,11 +7,13 @@ void Win32SetupFunc(void)
 
 int8_t output[36];
 
+// Returns the current value of a controller entry
 void Cget_val (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
     ReturnValue->Val->Integer = output[Param[0]->Val->Integer];
 }
 
+// Overwrites the current value of a controller entry
 void Cset_val (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
 	int button = Param[0]->Val->Integer;
