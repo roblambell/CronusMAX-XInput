@@ -324,20 +324,16 @@ namespace ControllerMAX_XInput {
 					forwarderState.input[i] = Convert::ToInt32(mergedInput[i]);
 				}
 				
-				// Output to XInput controller and set output
-				if(forwarderState.deviceConnected)
-				{
-					// Vibrate XInput controller
-					// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
-					vibration.wRightMotorSpeed = iround(655.35 * (float)report.rumble[0]);
-					vibration.wLeftMotorSpeed = iround(655.35 * (float)report.rumble[1]);
-					XInputSetState(controllerNum, vibration);
+				// Vibrate XInput controller
+				// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
+				vibration.wRightMotorSpeed = iround(655.35 * (float)report.rumble[0]);
+				vibration.wLeftMotorSpeed = iround(655.35 * (float)report.rumble[1]);
+				XInputSetState(controllerNum, vibration);
 
-					// Set output
-					for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
-					{
-						output[i] = mergedInput[i];
-					}
+				// Set output
+				for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
+				{
+					output[i] = mergedInput[i];
 				}
 			}
 			else if(forwarderState.deviceConnected)
@@ -351,17 +347,15 @@ namespace ControllerMAX_XInput {
 				}
 			}
 
-			// Execute scripts / modify then write output
+			// GPC interpreter
+			if(forwarderState.gpcScriptLoaded)
+			{
+				gpci_Execute(gpcFileName, &output);
+			}
+
+			// Output to console
 			if(forwarderState.deviceConnected)
 			{
-
-				// GPC interpreter
-				if(forwarderState.gpcScriptLoaded)
-				{
-					gpci_Execute(gpcFileName, &output);
-				}
-
-				// Output to console
 				gcapi_Write(output);
 			}
 
