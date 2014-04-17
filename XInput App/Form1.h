@@ -108,7 +108,6 @@ namespace ControllerMAX_XInput {
 					}
 
 					// Check output console and set button labels
-					// Just Xbox for now..
 					array<System::String^> ^buttonLabel = gcnew array<System::String^>(21);
 					buttonLabel[0] = "Guide";
 					buttonLabel[1] = "Back";
@@ -208,9 +207,9 @@ namespace ControllerMAX_XInput {
 			// statusStrip1
 			// 
 			this->statusStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->toolStripStatusLabel1});
-			this->statusStrip1->Location = System::Drawing::Point(0, 153);
+			this->statusStrip1->Location = System::Drawing::Point(0, 193);
 			this->statusStrip1->Name = L"statusStrip1";
-			this->statusStrip1->Size = System::Drawing::Size(254, 22);
+			this->statusStrip1->Size = System::Drawing::Size(301, 22);
 			this->statusStrip1->TabIndex = 2;
 			this->statusStrip1->Text = L"statusStrip1";
 			// 
@@ -226,10 +225,12 @@ namespace ControllerMAX_XInput {
 				this->columnHeader3});
 			this->listView1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->listView1->Enabled = false;
+			this->listView1->Font = (gcnew System::Drawing::Font(L"Consolas", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
 			this->listView1->HeaderStyle = System::Windows::Forms::ColumnHeaderStyle::Nonclickable;
 			this->listView1->Location = System::Drawing::Point(0, 0);
 			this->listView1->Name = L"listView1";
-			this->listView1->Size = System::Drawing::Size(254, 153);
+			this->listView1->Size = System::Drawing::Size(301, 193);
 			this->listView1->TabIndex = 3;
 			this->listView1->UseCompatibleStateImageBehavior = false;
 			this->listView1->View = System::Windows::Forms::View::Details;
@@ -237,17 +238,17 @@ namespace ControllerMAX_XInput {
 			// columnHeader1
 			// 
 			this->columnHeader1->Text = L"Button";
-			this->columnHeader1->Width = 136;
+			this->columnHeader1->Width = 180;
 			// 
 			// columnHeader2
 			// 
 			this->columnHeader2->Text = L"Input";
-			this->columnHeader2->Width = 44;
+			this->columnHeader2->Width = 50;
 			// 
 			// columnHeader3
 			// 
 			this->columnHeader3->Text = L"Output";
-			this->columnHeader3->Width = 44;
+			this->columnHeader3->Width = 50;
 			// 
 			// notifyIcon
 			// 
@@ -290,7 +291,7 @@ namespace ControllerMAX_XInput {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(254, 175);
+			this->ClientSize = System::Drawing::Size(301, 215);
 			this->Controls->Add(this->listView1);
 			this->Controls->Add(this->statusStrip1);
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
