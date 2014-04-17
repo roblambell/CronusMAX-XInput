@@ -101,9 +101,13 @@
     <ClInclude Include="picoc.h" />
     <ClInclude Include="platform.h" />
     <ClInclude Include="platform\platform_win32.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GPC Interpreter.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

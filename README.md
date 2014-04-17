@@ -21,7 +21,7 @@ Rumble is passed to the controller connected to the PC.
 Instructions
 ------------
 1\. [Download the latest release](https://github.com/badgio/CronusMAX-XInput/releases)  
-2\. Place `XInput.exe`, `XInput.dll`, `XInput.cfg`, `XInput.gpc` and `gcpi.dll` into `C:\Program Files (x86)\Gtuner` * 
+2\. Place `XInput.exe`, `XInput.dll`, `XInput.cfg`, `XInput.gpc` and `gpci.dll` into `C:\Program Files (x86)\Gtuner` * 
 ___
 
 If you need to use [x360ce (Xbox 360 Controller Emulator)](https://code.google.com/p/x360ce/wiki/Whatisx360ceandhowuseIt)  
