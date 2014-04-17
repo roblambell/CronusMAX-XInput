@@ -15,8 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
     <None Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="XInput.gpc">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="XInput.cfg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="gcdapi.dll">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

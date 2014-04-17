@@ -1,8 +1,8 @@
 /* *
-* GPC SCRIPT
+*  GPC SCRIPT
 * 
 *  GPC is a scripting language with C-like syntax.
-*  To learn more access GPC Online Help on Help menu.
+*  To learn more go to http://controllermax.com
 * *********************************************************** */
 
 void main() {

@@ -237,7 +237,7 @@ namespace ControllerMAX_XInput {
 			// columnHeader1
 			// 
 			this->columnHeader1->Text = L"Button";
-			this->columnHeader1->Width = 162;
+			this->columnHeader1->Width = 136;
 			// 
 			// columnHeader2
 			// 
@@ -298,7 +298,7 @@ namespace ControllerMAX_XInput {
 			this->Name = L"Form1";
 			this->ShowInTaskbar = false;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"ControllerMAX XInput";
+			this->Text = L"XInput";
 			this->Resize += gcnew System::EventHandler(this, &Form1::Form1_Resize);
 			this->statusStrip1->ResumeLayout(false);
 			this->statusStrip1->PerformLayout();

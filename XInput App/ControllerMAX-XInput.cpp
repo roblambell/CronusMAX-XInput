@@ -50,8 +50,8 @@ int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
 
 /*  Configuration
  */
-wchar_t iniFilePath[100] = L"./ControllerMAX-XInput.ini\0";
-
+wchar_t cfgFilePath[100] = L"./XInput.cfg\0";
+char *gpcFileName = "XInput.gpc";
 
 namespace ControllerMAX_XInput {
 
@@ -80,12 +80,9 @@ namespace ControllerMAX_XInput {
 		ULONGLONG reportTimer = GetTickCount64();
 
 		FORWARDER_STATE forwarderState;
-
-		HINSTANCE hInsDeviceAPI = NULL;
-		GCAPI_REPORT report = {0};
-
+		
 		// Load configuration
-		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, iniFilePath) ? true : false;
+		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, cfgFilePath) ? true : false;
 
 		// Load the Direct API Library
 		hInsDeviceAPI = LoadLibrary(TEXT("gcdapi.dll"));
@@ -138,34 +135,35 @@ namespace ControllerMAX_XInput {
 		}
 
 		// Load the GPC Interpreter
-		hInsGPCInterpreter = LoadLibrary(TEXT("GPC-Interpreter.dll"));
+		hInsGPCInterpreter = LoadLibrary(TEXT("gpci.dll"));
 		if(hInsGPCInterpreter == NULL)
 		{
 			if(!cancellationPending)
 			{
-				forwarderState.errorMessage = "Error on loading GPC-Interpreter.dll";
+				forwarderState.errorMessage = "Error on loading gpci.dll";
 				worker->ReportProgress(0, forwarderState);
 				cancellationPending = true;
 			}
 		}
-
-		// Set up the pointers to DLL exported functions
-		gpci_Load = (GPCI_Load) GetProcAddress(hInsGPCInterpreter, "gpci_Load");
-		gpci_Unload = (GPCI_Unload) GetProcAddress(hInsGPCInterpreter, "gpci_Unload");
-		gpci_Parse = (GPCI_Parse) GetProcAddress(hInsGPCInterpreter, "gpci_Parse");
-		gpci_Execute = (GPCI_Execute) GetProcAddress(hInsGPCInterpreter, "gpci_Execute");
-
-		gpci_Load();
-
-		char *gpcFileName = "ControllerMAX-XInput.gpc";
-		if(gpcFileName != "")
+		else
 		{
-			forwarderState.gpcScriptLoaded = gpci_Parse(gpcFileName) ? true : false;
-			if(!forwarderState.gpcScriptLoaded && !cancellationPending)
+			// Set up the pointers to DLL exported functions
+			gpci_Load = (GPCI_Load) GetProcAddress(hInsGPCInterpreter, "gpci_Load");
+			gpci_Unload = (GPCI_Unload) GetProcAddress(hInsGPCInterpreter, "gpci_Unload");
+			gpci_Parse = (GPCI_Parse) GetProcAddress(hInsGPCInterpreter, "gpci_Parse");
+			gpci_Execute = (GPCI_Execute) GetProcAddress(hInsGPCInterpreter, "gpci_Execute");
+
+			gpci_Load();
+
+			if(gpcFileName != "")
 			{
-				forwarderState.errorMessage = "Error on loading " + gcnew String(gpcFileName);
-				worker->ReportProgress(0, forwarderState);
-				cancellationPending = true;
+				forwarderState.gpcScriptLoaded = gpci_Parse(gpcFileName) ? true : false;
+				if(!forwarderState.gpcScriptLoaded && !cancellationPending)
+				{
+					forwarderState.errorMessage = "Error on loading " + gcnew String(gpcFileName);
+					worker->ReportProgress(0, forwarderState);
+					cancellationPending = true;
+				}
 			}
 		}
 
