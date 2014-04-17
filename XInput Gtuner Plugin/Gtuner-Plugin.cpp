@@ -1,4 +1,4 @@
-/*  ControllerMAX-XInput
+/*  CronusMAX-XInput
  *
  *  Plugin for Gtuner
  *  http://www.controllermax.com

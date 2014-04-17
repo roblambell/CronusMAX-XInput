@@ -15,7 +15,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyDescriptionAttribute("")];
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
-[assembly:AssemblyProductAttribute("ControllerMAX-XInput")];
+[assembly:AssemblyProductAttribute("CronusMAX-XInput")];
 [assembly:AssemblyCopyrightAttribute("Copyright (c)  2014")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ControllerMAX_XInput {
+namespace CronusMAX_XInput {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -254,7 +254,7 @@ namespace ControllerMAX_XInput {
 			// 
 			this->notifyIcon->ContextMenuStrip = this->notifyContextMenu;
 			this->notifyIcon->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"notifyIcon.Icon")));
-			this->notifyIcon->Text = L"ControllerMAX XInput";
+			this->notifyIcon->Text = L"CronusMAX XInput";
 			this->notifyIcon->Visible = true;
 			this->notifyIcon->DoubleClick += gcnew System::EventHandler(this, &Form1::notifyIcon_DoubleClick);
 			// 

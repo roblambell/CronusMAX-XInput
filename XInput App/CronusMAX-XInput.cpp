@@ -1,4 +1,4 @@
-// ControllerMAX-XInput.cpp : main project file.
+// CronusMAX-XInput.cpp : main project file.
 
 #include "stdafx.h"
 
@@ -53,7 +53,7 @@ int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
 wchar_t cfgFilePath[100] = L"./XInput.cfg\0";
 char *gpcFileName = "XInput.gpc";
 
-namespace ControllerMAX_XInput {
+namespace CronusMAX_XInput {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -394,7 +394,7 @@ namespace ControllerMAX_XInput {
 
 #include "Form1.h"
 
-using namespace ControllerMAX_XInput;
+using namespace CronusMAX_XInput;
 
 [STAThreadAttribute]
 int main(array<System::String ^> ^args)

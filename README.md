@@ -20,7 +20,7 @@ Rumble is passed to the controller connected to the PC.
 
 Instructions
 ------------
-1\. [Download the latest release](https://github.com/badgio/ControllerMAX-XInput/releases)  
+1\. [Download the latest release](https://github.com/badgio/CronusMAX-XInput/releases)  
 2\. Place `XInput.exe`, `XInput.dll`, `XInput.cfg`, `XInput.gpc` and `gcpi.dll` into `C:\Program Files (x86)\Gtuner` * 
 ___
 

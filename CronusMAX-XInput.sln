@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XInput App", "XInput App\ControllerMAX-XInput.vcxproj", "{B9AE96C0-F09B-400A-8AF1-15A9F5D659A8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XInput App", "XInput App\CronusMAX-XInput.vcxproj", "{B9AE96C0-F09B-400A-8AF1-15A9F5D659A8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XInput Gtuner Plugin", "XInput Gtuner Plugin\Gtuner-Plugin.vcxproj", "{DB57F735-DD4B-4398-82DB-3D43A12902F6}"
 EndProject
