@@ -7,6 +7,7 @@
 
 void main() {
 
+	/*
     if(get_val(XB1_LX) < 0)
     {
         set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) - 23);
@@ -15,5 +16,6 @@ void main() {
     {
         set_val(XB1_LX, ((get_val(XB1_LX) * 7) / 9) + 23);
     }
-    
+    */
+
 }

@@ -131,6 +131,12 @@ namespace CronusMAX_XInput {
 					buttonLabel[19] = "A";
 					buttonLabel[20] = "X";
 
+					array<System::String^> ^rumbleLabel = gcnew array<System::String^>(4);
+					rumbleLabel[0] = "Right Motor (Rumble)";
+					rumbleLabel[1] = "Left Motor (Rumble)";
+					rumbleLabel[2] = "Right Trigger (Rumble)";
+					rumbleLabel[3] = "Left Trigger (Rumble)";
+
 					// Update button activity
 					this->listView1->Items->Clear();
 					if(forwarderState.controllerConnected)
@@ -139,6 +145,7 @@ namespace CronusMAX_XInput {
 
 						int currentRow = 0;
 
+						// Buttons
 						for(int i = 0; i <= 20; i++) {
 
 							if((int)forwarderState.input[i] != (int)0 || (int)forwarderState.output[i] != (int)0)
@@ -168,6 +175,23 @@ namespace CronusMAX_XInput {
 							}
 
 						}
+
+						// Rumble
+						for(int i = 0; i <= 3; i++) {
+
+							if((int)forwarderState.rumble_in[i] != (int)0 || (int)forwarderState.rumble_out[i] != (int)0)
+							{
+								this->listView1->Items->Insert(currentRow, rumbleLabel[i]);
+
+								// Prefix with a plus sign
+								this->listView1->Items[currentRow]->SubItems->Add("+" + Convert::ToString(forwarderState.rumble_in[i]));
+								this->listView1->Items[currentRow]->SubItems->Add("+" + Convert::ToString(forwarderState.rumble_out[i]));
+
+								currentRow++;
+							}
+
+						}
+						
 					}
 					else
 					{

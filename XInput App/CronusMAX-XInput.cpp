@@ -34,7 +34,7 @@ GCAPI_REPORT report = {0};
 typedef     void (__stdcall *GPCI_Load)();
 typedef     void (__stdcall *GPCI_Unload)();
 typedef  uint8_t (__stdcall *GPCI_Parse)(char *);
-typedef  uint8_t (__stdcall *GPCI_Execute)(char *, int8_t (*)[GCAPI_OUTPUT_TOTAL]);
+typedef  uint8_t (__stdcall *GPCI_Execute)(char *, int8_t (*)[GCAPI_OUTPUT_TOTAL], int8_t (*)[4]);
 
 GPCI_Load gpci_Load = NULL;
 GPCI_Unload gpci_Unload = NULL;
@@ -47,6 +47,8 @@ HINSTANCE hInsGPCInterpreter = NULL;
 int8_t xinputInput[GCAPI_OUTPUT_TOTAL] = {0};
 int8_t mergedInput[GCAPI_OUTPUT_TOTAL] = {0};
 int8_t output[GCAPI_OUTPUT_TOTAL] = {0};
+
+int8_t rumble[4] = {0};
 
 /*  Configuration
  */
@@ -71,6 +73,8 @@ namespace CronusMAX_XInput {
 		static bool gpcScriptLoaded;
 		static array<int^> ^input = gcnew array<int^>(21);
 		static array<int^> ^output = gcnew array<int^>(21);
+		static array<int^> ^rumble_in = gcnew array<int^>(4);
+		static array<int^> ^rumble_out = gcnew array<int^>(4);
 	};
 
 	void XInputForwarder(int controllerNum, BackgroundWorker^ worker, DoWorkEventArgs ^ e )
@@ -247,22 +251,16 @@ namespace CronusMAX_XInput {
 				// Left Thumb
 				float LX = controllerState.thumbLX;
 				float LY = controllerState.thumbLY;
-
 				int8_t percentageLX = (int8_t)iround((LX / 32767) * 100);
 				int8_t percentageLY = (int8_t)iround((LY / 32767) * 100);
-
-				// CM expects Y-axis -100 up, 100 down
-				percentageLY *= -1;
+				percentageLY *= -1; // CM expects Y-axis -100 up, 100 down
 
 				// Right Thumb
 				float RX = controllerState.thumbRX;
 				float RY = controllerState.thumbRY;
-
 				int8_t percentageRX = (int8_t)iround((RX / 32767) * 100);
 				int8_t percentageRY = (int8_t)iround((RY / 32767) * 100);
-
-				// CM expects Y-axis -100 up, 100 down
-				percentageRY *= -1;
+				percentageRY *= -1; // CM expects Y-axis -100 up, 100 down
 
 				// Left Trigger
 				float LT = (float)controllerState.leftTrigger;
@@ -321,13 +319,7 @@ namespace CronusMAX_XInput {
 				{
 					forwarderState.input[i] = Convert::ToInt32(mergedInput[i]);
 				}
-				
-				// Vibrate XInput controller
-				// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
-				vibration.wRightMotorSpeed = iround(655.35 * (float)report.rumble[0]);
-				vibration.wLeftMotorSpeed = iround(655.35 * (float)report.rumble[1]);
-				XInputSetState(controllerNum, vibration);
-
+								
 				// Set output
 				for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
 				{
@@ -336,19 +328,55 @@ namespace CronusMAX_XInput {
 			}
 			else if(forwarderState.deviceConnected)
 			{
-				// Passthru mode
-				// Input from auth controller to console
 				gcapi_Read(&report);
+
+				// Passthru mode
+
+				// Don't need to report input to UI, it's 
+				// not shown unless a controller is connected
+
+				// Set output
 				for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
 				{
 					output[i] = report.input[i].value;
 				}
 			}
 
+			// Rumble from console
+			if(forwarderState.deviceConnected)
+			{
+				rumble[0] = report.rumble[0];
+				rumble[1] = report.rumble[1];
+				rumble[2] = 0; //report.rumble[2];
+				rumble[3] = 0; //report.rumble[3];
+
+				// Rumble to report to UI
+				forwarderState.rumble_in[0] = Convert::ToInt32(rumble[0]);
+				forwarderState.rumble_in[1] = Convert::ToInt32(rumble[1]);
+				forwarderState.rumble_in[2] = Convert::ToInt32(rumble[2]);
+				forwarderState.rumble_in[3] = Convert::ToInt32(rumble[3]);
+			}
+			
 			// GPC interpreter
 			if(forwarderState.gpcScriptLoaded)
 			{
-				gpci_Execute(gpcFileName, &output);
+				gpci_Execute(gpcFileName, &output, &rumble);
+			}
+			
+			// Rumble to controller
+			if(forwarderState.controllerConnected)
+			{
+				// Vibrate XInput controller
+				// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
+				vibration.wRightMotorSpeed = iround(655.35 * (float)rumble[0]);
+				vibration.wLeftMotorSpeed = iround(655.35 * (float)rumble[1]);
+				XInputSetState(controllerNum, vibration);
+
+				// Rumble to report to UI
+				forwarderState.rumble_out[0] = Convert::ToInt32(rumble[0]);
+				forwarderState.rumble_out[1] = Convert::ToInt32(rumble[1]);
+				forwarderState.rumble_out[2] = Convert::ToInt32(0);
+				forwarderState.rumble_out[3] = Convert::ToInt32(0);
 			}
 
 			// Output to console

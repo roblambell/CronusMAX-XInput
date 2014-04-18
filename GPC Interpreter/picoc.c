@@ -12,6 +12,7 @@
 #define PICOC_STACK_SIZE (128*1024)              /* space for the the stack */
 
 int8_t output[36] = {0};
+int8_t i;
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +35,8 @@ extern "C" {
 		return 1;
 	}
 
-	__declspec(dllexport) int gpci_Execute(char *FileName, int8_t *input)
+	__declspec(dllexport) int gpci_Execute(char *FileName, int8_t *input, int8_t *rumble)
 	{
-		int8_t i;
 
 		for(i=0; i<36; i++)
 		{
