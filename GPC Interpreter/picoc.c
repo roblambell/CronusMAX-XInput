@@ -11,7 +11,7 @@
 
 #define PICOC_STACK_SIZE (128*1024)              /* space for the the stack */
 
-int8_t output[36] = {0};
+int8_t output[21] = {0};
 int8_t i;
 
 #ifdef __cplusplus
@@ -20,7 +20,8 @@ extern "C" {
 
 	__declspec(dllexport) void gpci_Load()
 	{
-		PicocInitialise(PICOC_STACK_SIZE);
+		int StackSize = getenv("STACKSIZE") ? atoi(getenv("STACKSIZE")) : PICOC_STACK_SIZE;
+		PicocInitialise(StackSize);
 		PicocIncludeAllSystemHeaders();
 	}
 
@@ -38,14 +39,15 @@ extern "C" {
 	__declspec(dllexport) int gpci_Execute(char *FileName, int8_t *input, int8_t *rumble)
 	{
 
-		for(i=0; i<36; i++)
+		for(i=0; i<=20; i++)
 		{
 			output[i] = input[i];
 		}
 
 		PicocCallMain(0, &FileName);
 
-		for(i=0; i<36; i++)
+		// overwrite the original array
+		for(i=0; i<=20; i++)
 		{
 			input[i] = output[i];
 		}

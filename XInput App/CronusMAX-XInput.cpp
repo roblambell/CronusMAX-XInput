@@ -319,7 +319,7 @@ namespace CronusMAX_XInput {
 				{
 					forwarderState.input[i] = Convert::ToInt32(mergedInput[i]);
 				}
-								
+
 				// Set output
 				for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
 				{

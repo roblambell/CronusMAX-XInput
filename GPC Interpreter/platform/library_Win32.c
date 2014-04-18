@@ -5,7 +5,7 @@ void Win32SetupFunc(void)
 {    
 }
 
-int8_t output[36];
+int8_t output[21];
 
 /* GPC I/O Functions 
  *
