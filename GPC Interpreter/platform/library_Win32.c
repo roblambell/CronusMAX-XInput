@@ -7,12 +7,29 @@ void Win32SetupFunc(void)
 
 int8_t output[36];
 
+/* GPC I/O Functions 
+ *
+ * get_val       Returns the current value of a controller entry
+ * set_val       Overwrites the current value of a controller entry
+ * get_lval      Returns the previous value of a controller entry
+ * get_ptime     Returns the elapsed activation time (pressing) of a controller entry
+ * event_press   Returns TRUE when detected activation (pressing) of a controller entry
+ * event_release Returns TRUE when detected deactivation (releasing) of a controller entry
+ * swap          Swap the values between two controller entries
+ * block         Blocks forwarding of a controller entry for a short period of time
+ * sensitivity   Adjust the sensitivity of a controller entry
+ * deadzone      Remove the deadzone of a pair of entries, usually of analog sticks
+ * stickize      Transform the values of mouse input (or Wiimote IR) to analog stick
+ */
+
+// int get_val ( <identifier> )
 // Returns the current value of a controller entry
 void Cget_val (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
     ReturnValue->Val->Integer = output[Param[0]->Val->Integer];
 }
 
+// set_val ( <identifier>, <value> )
 // Overwrites the current value of a controller entry
 void Cset_val (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
@@ -21,19 +38,95 @@ void Cset_val (struct ParseState *Parser, struct Value *ReturnValue, struct Valu
 	output[button] = value;
 }
 
+// TODO: int get_lval ( <identifier> )
+// Returns the previous value of a controller entry
+void Cget_lval (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+    ReturnValue->Val->Integer = 0;
+}
+
+// TODO: int get_ptime ( <identifier> )
+// Returns the elapsed activation time (pressing) of a controller entry
+void Cget_ptime (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+    ReturnValue->Val->Integer = 0;
+}
+
+// TODO: int event_press ( <identifier> )
+// Returns TRUE when detected activation (pressing) of a controller entry
+void Cevent_press (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+    ReturnValue->Val->Integer = 0;
+}
+
+// TODO: int event_release ( <identifier> )
+// Returns TRUE when detected deactivation (releasing) of a controller entry
+void Cevent_release (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+    ReturnValue->Val->Integer = 0;
+}
+
+// swap ( <identifier1>, <identifier2> )
+// Swap the values between two controller entries
+void Cswap (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+	int button1 = Param[0]->Val->Integer;
+	int button2 = Param[1]->Val->Integer;
+
+	int button1_val = output[button1];
+	int button2_val = output[button2];
+
+	output[button1] = button2_val;
+	output[button2] = button1_val;
+}
+
+// TODO: block ( <identifier>, <time> )
+// Blocks forwarding of a controller entry for a short period of time
+void Cblock (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+	
+}
+
+// TODO: sensitivity ( <identifier>, <midpoint>, <sensitivity> )
+// Adjust the sensitivity of a controller entry
+void Csensitivity (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+	
+}
+
+// TODO: deadzone ( <identifierX>, <identifierY>, <xdz_cir>, <ydz_rad> )
+// Remove the deadzone of a pair of entries, usually of analog sticks
+void Cdeadzone (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+	
+}
+
+// TODO: stickize ( <identifierX>, <identifierY>, <radius> )
+// Transform the values of mouse input (or Wiimote IR) to analog stick
+void Cstickize (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+	
+}
+
 /* list of all library functions and their prototypes */
 struct LibraryFunction Win32Functions[] =
 {
-	{ Cget_val,     "int get_val(int);" },
-	{ Cset_val,     "int set_val(int, int);" },
-    { NULL,         NULL }
+	{ Cget_val,       "int get_val(int);" },                  // int get_val ( <identifier> )
+	{ Cset_val,       "void set_val(int, int);" },            // set_val ( <identifier>, <value> )
+	{ Cget_lval,      "int get_lval(int);" },                 // int get_lval ( <identifier> )
+	{ Cget_ptime,     "int get_ptime(int);" },                // int get_ptime ( <identifier> )
+	{ Cevent_press,   "int event_press(int);" },              // int event_press ( <identifier> )
+	{ Cevent_release, "int event_release(int);" },            // int event_release ( <identifier> )
+	{ Cswap,          "void swap(int, int);" },               // swap ( <identifier1>, <identifier2> )
+	{ Cblock,         "void block(int, int);" },              // block ( <identifier>, <time> )
+	{ Csensitivity,   "void sensitivity(int, int, int);" },   // sensitivity ( <identifier>, <midpoint>, <sensitivity> )
+	{ Cdeadzone,      "void deadzone(int, int, int, int);" }, // deadzone ( <identifierX>, <identifierY>, <xdz_cir>, <ydz_rad> )
+	{ Cstickize,      "void stickize(int, int, int);" },      // stickize ( <identifierX>, <identifierY>, <radius> )
+    { NULL,           NULL }
 };
 
-/* PS4 Input/Output Indexes
- *  The GCAPI implements a generic structure to accommodate all the entries 
- *  of a given system/controller/protocol, below are defined the position 
- *  of the entries for the PS4.
- */
+/* Controller Input/Output Indexes */
+// PS4 Input/Output Indexes
 int PS4_PS =        0;
 int PS4_SHARE =     1;
 int PS4_OPTIONS =   2;
@@ -65,10 +158,7 @@ int PS4_TOUCH =    27;
 int PS4_TOUCHX =   28;
 int PS4_TOUCHY =   29;
 
-
-/* PS3 Input/Output Indexes
- *  Defines the position of the entries for the PS3.
- */
+// PS3 Input/Output Indexes
 int PS3_PS =        0;
 int PS3_SELECT =    1;
 int PS3_START =     2;
@@ -95,10 +185,7 @@ int PS3_ACCY =     22;
 int PS3_ACCZ =     23;
 int PS3_GYRO =     24;
 
-
-/* XBox One Input/Output Indexes
- *  Defines the position of the entries for the XBox One.
- */
+// XBox One Input/Output Indexes
 int XB1_XBOX =      0;
 int XB1_VIEW =      1;
 int XB1_MENU =      2;
@@ -121,10 +208,7 @@ int XB1_B =        18;
 int XB1_A =        19;
 int XB1_X =        20;
 
-
-/* XBox 360 Input/Output Indexes
- *  Defines the position of the entries for the XBox 360.
- */
+// XBox 360 Input/Output Indexes
 int XB360_XBOX =    0;
 int XB360_BACK =    1;
 int XB360_START =   2;
@@ -147,10 +231,7 @@ int XB360_B =      18;
 int XB360_A =      19;
 int XB360_X =      20;
 
-
-/* Wiimote Input Indexes
- *  Defines the position of the entries for the Wiimote.
- */
+// Wiimote Input Indexes
 int WII_HOME =      0;
 int WII_MINUS =     1;
 int WII_PLUS =      2;
@@ -168,8 +249,7 @@ int WII_ACCZ =     23;
 int WII_IRX =      28;
 int WII_IRY =      29;
 
-/* Nunchuk Input Indexes
- */
+// Nunchuk Input Indexes
 int WII_C =         6;
 int WII_Z =         7;
 int WII_NX =       11;
@@ -178,8 +258,7 @@ int WII_ACCNX =    25;
 int WII_ACCNY =    26;
 int WII_ACCNZ =    27;
 
-/* Classic Controller [PRO] Input Indexes
- */
+// Classic Controller [PRO] Input Indexes
 int WII_RT =        3;
 int WII_ZR =        4;
 int WII_LT =        6;
@@ -193,7 +272,7 @@ int WII_Y =        20;
 
 void PlatformLibraryInit(void)
 {
-    IncludeRegister("picoc_unix.h", &Win32SetupFunc, &Win32Functions[0], NULL);
+	IncludeRegister("picoc_unix.h", &Win32SetupFunc, &Win32Functions[0], NULL);
 
 	VariableDefinePlatformVar(NULL, "PS4_PS", &IntType, (union AnyValue *)&PS4_PS, TRUE);
 	VariableDefinePlatformVar(NULL, "PS4_SHARE", &IntType, (union AnyValue *)&PS4_SHARE, TRUE);
@@ -331,6 +410,5 @@ void PlatformLibraryInit(void)
 	VariableDefinePlatformVar(NULL, "WII_LY", &IntType, (union AnyValue *)&WII_LY, TRUE);
 	VariableDefinePlatformVar(NULL, "WII_X", &IntType, (union AnyValue *)&WII_X, TRUE);
 	VariableDefinePlatformVar(NULL, "WII_Y", &IntType, (union AnyValue *)&WII_Y, TRUE);
-
 
 }
