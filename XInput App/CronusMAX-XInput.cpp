@@ -303,7 +303,7 @@ namespace CronusMAX_XInput {
 				{
 					for(uint8_t i=0; i<GCAPI_INPUT_TOTAL; i++)
 					{
-						mergedInput[i] = xinputInput[i] ? xinputInput[i] : report.input[i].value;
+						mergedInput[i] = abs(report.input[i].value) > abs(xinputInput[i]) ? report.input[i].value : xinputInput[i];
 					}
 				}
 				else
