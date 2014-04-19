@@ -343,19 +343,16 @@ namespace CronusMAX_XInput {
 			}
 
 			// Rumble from console
-			if(forwarderState.deviceConnected)
-			{
-				rumble[0] = report.rumble[0];
-				rumble[1] = report.rumble[1];
-				rumble[2] = 0; //report.rumble[2];
-				rumble[3] = 0; //report.rumble[3];
+			rumble[0] = forwarderState.deviceConnected ? report.rumble[0] : 0;
+			rumble[1] = forwarderState.deviceConnected ? report.rumble[1] : 0;
+			rumble[2] = 0; //report.rumble[2];
+			rumble[3] = 0; //report.rumble[3];
 
-				// Rumble to report to UI
-				forwarderState.rumble_in[0] = Convert::ToInt32(rumble[0]);
-				forwarderState.rumble_in[1] = Convert::ToInt32(rumble[1]);
-				forwarderState.rumble_in[2] = Convert::ToInt32(rumble[2]);
-				forwarderState.rumble_in[3] = Convert::ToInt32(rumble[3]);
-			}
+			// Rumble to report to UI
+			forwarderState.rumble_in[0] = Convert::ToInt32(rumble[0]);
+			forwarderState.rumble_in[1] = Convert::ToInt32(rumble[1]);
+			forwarderState.rumble_in[2] = Convert::ToInt32(rumble[2]);
+			forwarderState.rumble_in[3] = Convert::ToInt32(rumble[3]);
 			
 			// GPC interpreter
 			if(forwarderState.gpcScriptLoaded)
