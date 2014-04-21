@@ -192,6 +192,8 @@ namespace CronusMAX_XInput {
 		{
 			WORD wLeftMotorSpeed;
 			WORD wRightMotorSpeed;
+			WORD wLeftTriggerMotorSpeed;   // These last two aren't official. Our Xbox One Controller
+			WORD wRightTriggerMotorSpeed;  // XInput wrapper will know what to do though :)
 		};
 
 		// Create hInstance of xinput1_3
@@ -347,7 +349,7 @@ namespace CronusMAX_XInput {
 			rumble[1] = forwarderState.deviceConnected ? report.rumble[1] : 0;
 			rumble[2] = 0; //report.rumble[2];
 			rumble[3] = 0; //report.rumble[3];
-
+			
 			// Rumble to report to UI
 			forwarderState.rumble_in[0] = Convert::ToInt32(rumble[0]);
 			forwarderState.rumble_in[1] = Convert::ToInt32(rumble[1]);
@@ -367,13 +369,15 @@ namespace CronusMAX_XInput {
 				// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
 				vibration.wRightMotorSpeed = iround(655.35 * (float)rumble[0]);
 				vibration.wLeftMotorSpeed = iround(655.35 * (float)rumble[1]);
+				vibration.wLeftTriggerMotorSpeed = iround(655.35 * (float)rumble[3]);
+				vibration.wRightTriggerMotorSpeed = iround(655.35 * (float)rumble[4]);
 				XInputSetState(controllerNum, vibration);
 
 				// Rumble to report to UI
 				forwarderState.rumble_out[0] = Convert::ToInt32(rumble[0]);
 				forwarderState.rumble_out[1] = Convert::ToInt32(rumble[1]);
-				forwarderState.rumble_out[2] = Convert::ToInt32(0);
-				forwarderState.rumble_out[3] = Convert::ToInt32(0);
+				forwarderState.rumble_out[2] = Convert::ToInt32(rumble[2]);
+				forwarderState.rumble_out[3] = Convert::ToInt32(rumble[3]);
 			}
 
 			// Output to console
