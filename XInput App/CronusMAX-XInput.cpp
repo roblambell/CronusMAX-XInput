@@ -369,8 +369,8 @@ namespace CronusMAX_XInput {
 				// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
 				vibration.wRightMotorSpeed = iround(655.35 * (float)rumble[0]);
 				vibration.wLeftMotorSpeed = iround(655.35 * (float)rumble[1]);
-				vibration.wLeftTriggerMotorSpeed = iround(655.35 * (float)rumble[3]);
-				vibration.wRightTriggerMotorSpeed = iround(655.35 * (float)rumble[4]);
+				vibration.wLeftTriggerMotorSpeed = iround(655.35 * (float)rumble[2]);
+				vibration.wRightTriggerMotorSpeed = iround(655.35 * (float)rumble[3]);
 				XInputSetState(controllerNum, vibration);
 
 				// Rumble to report to UI
