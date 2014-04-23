@@ -12,6 +12,7 @@
 #define PICOC_STACK_SIZE (128*1024)              /* space for the the stack */
 
 int8_t output[21] = {0};
+int8_t rumble_out[4] = {0};
 int8_t i;
 
 #ifdef __cplusplus
@@ -36,20 +37,28 @@ extern "C" {
 		return 1;
 	}
 
-	__declspec(dllexport) int gpci_Execute(char *FileName, int8_t *input, int8_t *rumble)
+	__declspec(dllexport) int gpci_Execute(char *FileName, int8_t *input, int8_t *rumble_in)
 	{
-
-		for(i=0; i<=20; i++)
+		// populate our working arrays
+		for(i=0; i<21; i++)
 		{
 			output[i] = input[i];
+		}
+		for(i=0; i<4; i++)
+		{
+			rumble_out[i] = rumble_in[i];
 		}
 
 		PicocCallMain(0, &FileName);
 
-		// overwrite the original array
-		for(i=0; i<=20; i++)
+		// overwrite the original arrays
+		for(i=0; i<21; i++)
 		{
 			input[i] = output[i];
+		}
+		for(i=0; i<4; i++)
+		{
+			rumble_in[i] = rumble_out[i];
 		}
 
 		return 0;

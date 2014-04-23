@@ -6,6 +6,7 @@ void Win32SetupFunc(void)
 }
 
 int8_t output[21];
+int8_t rumble_out[4];
 
 /* GPC I/O Functions 
  *
@@ -20,7 +21,17 @@ int8_t output[21];
  * sensitivity   Adjust the sensitivity of a controller entry
  * deadzone      Remove the deadzone of a pair of entries, usually of analog sticks
  * stickize      Transform the values of mouse input (or Wiimote IR) to analog stick
+ *
+ * Rumble
+ *
+ * get_rumble    Returns the current value of a rumble
+ * set_rumble    Set the value of a rumble (engine speed)
+ * block_rumble  Blocks any rumble action sent by the console
+ * reset_rumble  Unblocks the rumble (if it is blocked)
+ *
  */
+
+// GPC I/O Functions
 
 // int get_val ( <identifier> )
 // Returns the current value of a controller entry
@@ -108,9 +119,28 @@ void Cstickize (struct ParseState *Parser, struct Value *ReturnValue, struct Val
 	
 }
 
+// Rumble
+
+// int get_rumble ( <identifier> )
+// Returns the current value of a rumble
+void Cget_rumble (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+    ReturnValue->Val->Integer = rumble_out[Param[0]->Val->Integer];
+}
+
+// set_rumble ( <identifier>, <value> )
+// Set the value of a rumble (engine speed)
+void Cset_rumble (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
+{
+	int rumble_ident = Param[0]->Val->Integer;
+	int value = Param[1]->Val->Integer;
+	rumble_out[rumble_ident] = value;
+}
+
 /* list of all library functions and their prototypes */
 struct LibraryFunction Win32Functions[] =
 {
+	// GPC I/O Functions
 	{ Cget_val,       "int get_val(int);" },                  // int get_val ( <identifier> )
 	{ Cset_val,       "void set_val(int, int);" },            // set_val ( <identifier>, <value> )
 	{ Cget_lval,      "int get_lval(int);" },                 // int get_lval ( <identifier> )
@@ -122,6 +152,9 @@ struct LibraryFunction Win32Functions[] =
 	{ Csensitivity,   "void sensitivity(int, int, int);" },   // sensitivity ( <identifier>, <midpoint>, <sensitivity> )
 	{ Cdeadzone,      "void deadzone(int, int, int, int);" }, // deadzone ( <identifierX>, <identifierY>, <xdz_cir>, <ydz_rad> )
 	{ Cstickize,      "void stickize(int, int, int);" },      // stickize ( <identifierX>, <identifierY>, <radius> )
+	// Rumble
+	{ Cget_rumble,    "int get_rumble(int);" },               // int get_rumble ( <rumble_ident> )
+	{ Cset_rumble,    "void set_rumble(int, int);" },         // set_rumble ( <rumble_ident>, <value> )
     { NULL,           NULL }
 };
 
@@ -270,6 +303,12 @@ int WII_LY =       12;
 int WII_X =        17;
 int WII_Y =        20;
 
+// Rumble
+int RUMBLE_A =     0;
+int RUMBLE_B =     1;
+int RUMBLE_LT =    2;
+int RUMBLE_RT =    3;
+
 void PlatformLibraryInit(void)
 {
 	IncludeRegister("picoc_unix.h", &Win32SetupFunc, &Win32Functions[0], NULL);
@@ -410,5 +449,10 @@ void PlatformLibraryInit(void)
 	VariableDefinePlatformVar(NULL, "WII_LY", &IntType, (union AnyValue *)&WII_LY, TRUE);
 	VariableDefinePlatformVar(NULL, "WII_X", &IntType, (union AnyValue *)&WII_X, TRUE);
 	VariableDefinePlatformVar(NULL, "WII_Y", &IntType, (union AnyValue *)&WII_Y, TRUE);
+
+	VariableDefinePlatformVar(NULL, "RUMBLE_A", &IntType, (union AnyValue *)&RUMBLE_A, TRUE);
+	VariableDefinePlatformVar(NULL, "RUMBLE_B", &IntType, (union AnyValue *)&RUMBLE_B, TRUE);
+	VariableDefinePlatformVar(NULL, "RUMBLE_LT", &IntType, (union AnyValue *)&RUMBLE_LT, TRUE);
+	VariableDefinePlatformVar(NULL, "RUMBLE_RT", &IntType, (union AnyValue *)&RUMBLE_RT, TRUE);
 
 }

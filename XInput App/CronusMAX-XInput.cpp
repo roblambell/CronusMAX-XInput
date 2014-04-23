@@ -192,6 +192,12 @@ namespace CronusMAX_XInput {
 		{
 			WORD wLeftMotorSpeed;
 			WORD wRightMotorSpeed;
+		};
+
+		struct XInputVibrationEx
+		{
+			WORD wLeftMotorSpeed;
+			WORD wRightMotorSpeed;
 			WORD wLeftTriggerMotorSpeed;   // These last two aren't official. Our Xbox One Controller
 			WORD wRightTriggerMotorSpeed;  // XInput wrapper will know what to do though :)
 		};
@@ -214,31 +220,42 @@ namespace CronusMAX_XInput {
 		// https://code.google.com/p/x360ce/issues/detail?id=417
 
 		// Get the address of ordinal 100 (unnamed: XInputGetStateEx) - exposes Guide button
-		FARPROC pointerToDLLFunction1 = GetProcAddress(HMODULE(hInsXInput1_3), (LPCSTR)100);
+		FARPROC pointerToDLLFunction100 = GetProcAddress(HMODULE(hInsXInput1_3), (LPCSTR)100);
 
 		// typedef the function. It takes an int and a pointer to an XInputStateEx and returns an error code
 		// as an int. It's 0 for no error and 1167 for "controller not present". Presumably there are others
 		// but I never saw them. It won't cause a crash on error, it just won't update the data.
-		typedef int(__stdcall * pICFUNC1)(int, XInputStateEx &);
+		typedef int(__stdcall * pICFUNC100)(int, XInputStateEx &);
 
 		// Assign XInputGetStateEx for easier use
-		pICFUNC1 XInputGetStateEx;
-		XInputGetStateEx = pICFUNC1(pointerToDLLFunction1);
-
-		// Get the pointer to XInputSetState (ordinal 3)
-		FARPROC pointerToDLLFunction2 = GetProcAddress(HMODULE(hInsXInput1_3), "XInputSetState");
-
-		typedef int(__stdcall * pICFUNC2)(int, XInputVibration &);
-
-		// Assign XInputSetState for easier use
-		pICFUNC2 XInputSetState;
-		XInputSetState = pICFUNC2(pointerToDLLFunction2);
-
-		// Create a Controller State
-		XInputStateEx controllerState;
+		pICFUNC100 XInputGetStateEx;
+		XInputGetStateEx = pICFUNC100(pointerToDLLFunction100);
 
 		// Create a Vibration State
 		XInputVibration vibration;
+
+		// Create another Vibration State
+		XInputVibrationEx vibrationEx;
+
+		// Get the pointer to XInputSetState (ordinal 3) and XInputSetStateEx (ordinal 104 in our custom wrapper)
+		FARPROC pointerToDLLFunction3 = GetProcAddress(HMODULE(hInsXInput1_3), "XInputSetState");
+		FARPROC pointerToDLLFunction104 = GetProcAddress(HMODULE(hInsXInput1_3), "XInputSetStateEx");
+
+		bool triggerRumbleSupported = pointerToDLLFunction104 == NULL ? false : true;
+
+		typedef int(__stdcall * pICFUNC3)(int, XInputVibration &);
+		typedef int(__stdcall * pICFUNC104)(int, XInputVibrationEx &);
+
+		// Assign XInputSetState for easier use
+		pICFUNC3 XInputSetState;
+		XInputSetState = pICFUNC3(pointerToDLLFunction3);
+		
+		// Assign XInputSetStateEx for easier use
+		pICFUNC104 XInputSetStateEx;
+		XInputSetStateEx = pICFUNC104(pointerToDLLFunction104);
+
+		// Create a Controller State
+		XInputStateEx controllerState;
 
 		while ( !cancellationPending )
 		{
@@ -367,11 +384,20 @@ namespace CronusMAX_XInput {
 			{
 				// Vibrate XInput controller
 				// reported as [0 ~ 100] %, XInput range [0 ~ 65535]
-				vibration.wRightMotorSpeed = iround(655.35 * (float)rumble[0]);
-				vibration.wLeftMotorSpeed = iround(655.35 * (float)rumble[1]);
-				vibration.wLeftTriggerMotorSpeed = iround(655.35 * (float)rumble[2]);
-				vibration.wRightTriggerMotorSpeed = iround(655.35 * (float)rumble[3]);
-				XInputSetState(controllerNum, vibration);
+				if(triggerRumbleSupported)
+				{
+					vibrationEx.wLeftMotorSpeed = iround(655.35 * (float)rumble[0]);
+					vibrationEx.wRightMotorSpeed = iround(655.35 * (float)rumble[1]);
+					vibrationEx.wLeftTriggerMotorSpeed = iround(655.35 * (float)rumble[2]);
+					vibrationEx.wRightTriggerMotorSpeed = iround(655.35 * (float)rumble[3]);
+					XInputSetStateEx(controllerNum, vibrationEx);
+				}
+				else
+				{
+					vibration.wLeftMotorSpeed = iround(655.35 * (float)rumble[0]);
+					vibration.wRightMotorSpeed = iround(655.35 * (float)rumble[1]);
+					XInputSetState(controllerNum, vibration);
+				}
 
 				// Rumble to report to UI
 				forwarderState.rumble_out[0] = Convert::ToInt32(rumble[0]);

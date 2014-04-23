@@ -132,10 +132,10 @@ namespace CronusMAX_XInput {
 					buttonLabel[20] = "X";
 
 					array<System::String^> ^rumbleLabel = gcnew array<System::String^>(4);
-					rumbleLabel[0] = "Right Motor (Rumble)";
-					rumbleLabel[1] = "Left Motor (Rumble)";
-					rumbleLabel[2] = "Right Trigger (Rumble)";
-					rumbleLabel[3] = "Left Trigger (Rumble)";
+					rumbleLabel[0] = "Left Motor (Rumble)";
+					rumbleLabel[1] = "Right Motor (Rumble)";
+					rumbleLabel[2] = "Left Trigger (Rumble)";
+					rumbleLabel[3] = "Right Trigger (Rumble)";
 
 					// Update button activity
 					this->listView1->Items->Clear();
