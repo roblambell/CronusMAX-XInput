@@ -109,7 +109,7 @@ namespace CronusMAX_XInput {
 	private: System::Windows::Forms::CheckBox^  passthruInputcheckBox;
 
 	private: System::Windows::Forms::Label^  label9;
-	private: System::Windows::Forms::ColumnHeader^  columnHeader4;
+
 
 
 	private: static bool isProcessingBackgroundWorkerReport = false;
@@ -277,7 +277,6 @@ namespace CronusMAX_XInput {
 			this->columnHeader1 = (gcnew System::Windows::Forms::ColumnHeader());
 			this->columnHeader2 = (gcnew System::Windows::Forms::ColumnHeader());
 			this->columnHeader3 = (gcnew System::Windows::Forms::ColumnHeader());
-			this->columnHeader4 = (gcnew System::Windows::Forms::ColumnHeader());
 			this->notifyIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
 			this->notifyContextMenu = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
 			this->miToggleVisible = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -337,8 +336,8 @@ namespace CronusMAX_XInput {
 			// 
 			// listView1
 			// 
-			this->listView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(4) {this->columnHeader1, this->columnHeader2, 
-				this->columnHeader3, this->columnHeader4});
+			this->listView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(3) {this->columnHeader1, this->columnHeader2, 
+				this->columnHeader3});
 			this->listView1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->listView1->Enabled = false;
 			this->listView1->Font = (gcnew System::Drawing::Font(L"Consolas", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
@@ -359,17 +358,12 @@ namespace CronusMAX_XInput {
 			// columnHeader2
 			// 
 			this->columnHeader2->Text = L"Input";
-			this->columnHeader2->Width = 50;
+			this->columnHeader2->Width = 70;
 			// 
 			// columnHeader3
 			// 
 			this->columnHeader3->Text = L"Output";
-			this->columnHeader3->Width = 50;
-			// 
-			// columnHeader4
-			// 
-			this->columnHeader4->Text = L"PTime";
-			this->columnHeader4->Width = 50;
+			this->columnHeader3->Width = 70;
 			// 
 			// notifyIcon
 			// 
@@ -701,7 +695,7 @@ namespace CronusMAX_XInput {
 			this->Name = L"Form1";
 			this->ShowInTaskbar = false;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"XInput";
+			this->Text = L"XInput v0.3.0.0";
 			this->Resize += gcnew System::EventHandler(this, &Form1::Form1_Resize);
 			this->statusStrip1->ResumeLayout(false);
 			this->statusStrip1->PerformLayout();
