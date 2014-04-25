@@ -315,7 +315,7 @@ namespace CronusMAX_XInput {
 			this->listView1->HeaderStyle = System::Windows::Forms::ColumnHeaderStyle::Nonclickable;
 			this->listView1->Location = System::Drawing::Point(3, 3);
 			this->listView1->Name = L"listView1";
-			this->listView1->Size = System::Drawing::Size(360, 289);
+			this->listView1->Size = System::Drawing::Size(360, 283);
 			this->listView1->TabIndex = 3;
 			this->listView1->UseCompatibleStateImageBehavior = false;
 			this->listView1->View = System::Windows::Forms::View::Details;
@@ -391,7 +391,7 @@ namespace CronusMAX_XInput {
 			this->tabPage1->Location = System::Drawing::Point(4, 24);
 			this->tabPage1->Name = L"tabPage1";
 			this->tabPage1->Padding = System::Windows::Forms::Padding(3);
-			this->tabPage1->Size = System::Drawing::Size(366, 295);
+			this->tabPage1->Size = System::Drawing::Size(366, 289);
 			this->tabPage1->TabIndex = 0;
 			this->tabPage1->Text = L"Device Monitor";
 			this->tabPage1->UseVisualStyleBackColor = true;
@@ -431,8 +431,8 @@ namespace CronusMAX_XInput {
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(334, 40);
 			this->label1->TabIndex = 1;
-			this->label1->Text = L"XInput wrappers are provided. Xbox One requires driver install. x360ce must be co" 
-				L"nfigured separately.";
+			this->label1->Text = L"XInput wrappers are provided. Xbox One requires the included driver be installed." 
+				L" x360ce must be configured separately.";
 			// 
 			// tabPage4
 			// 
@@ -447,7 +447,7 @@ namespace CronusMAX_XInput {
 			this->tabPage4->Location = System::Drawing::Point(4, 24);
 			this->tabPage4->Name = L"tabPage4";
 			this->tabPage4->Padding = System::Windows::Forms::Padding(3);
-			this->tabPage4->Size = System::Drawing::Size(366, 278);
+			this->tabPage4->Size = System::Drawing::Size(366, 289);
 			this->tabPage4->TabIndex = 3;
 			this->tabPage4->Text = L"About";
 			this->tabPage4->UseVisualStyleBackColor = true;
