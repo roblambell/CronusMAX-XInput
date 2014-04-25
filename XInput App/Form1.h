@@ -81,6 +81,8 @@ namespace CronusMAX_XInput {
 	private: System::Windows::Forms::Label^  label8;
 	private: System::Windows::Forms::Button^  button2;
 	private: System::Windows::Forms::CheckBox^  checkBox1;
+	private: System::Windows::Forms::Label^  label9;
+	private: System::Windows::Forms::ColumnHeader^  columnHeader4;
 
 
 	private: static bool isProcessingBackgroundWorkerReport = false;
@@ -256,7 +258,18 @@ namespace CronusMAX_XInput {
 			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
 			this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
 			this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
+			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->label7 = (gcnew System::Windows::Forms::Label());
+			this->groupBox3 = (gcnew System::Windows::Forms::GroupBox());
+			this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
+			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
+			this->label8 = (gcnew System::Windows::Forms::Label());
+			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->groupBox1 = (gcnew System::Windows::Forms::GroupBox());
+			this->radioButton4 = (gcnew System::Windows::Forms::RadioButton());
+			this->radioButton3 = (gcnew System::Windows::Forms::RadioButton());
+			this->radioButton2 = (gcnew System::Windows::Forms::RadioButton());
+			this->radioButton1 = (gcnew System::Windows::Forms::RadioButton());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->tabPage4 = (gcnew System::Windows::Forms::TabPage());
 			this->label6 = (gcnew System::Windows::Forms::Label());
@@ -267,26 +280,17 @@ namespace CronusMAX_XInput {
 			this->linkLabel1 = (gcnew System::Windows::Forms::LinkLabel());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->label2 = (gcnew System::Windows::Forms::Label());
-			this->radioButton1 = (gcnew System::Windows::Forms::RadioButton());
-			this->radioButton2 = (gcnew System::Windows::Forms::RadioButton());
-			this->radioButton3 = (gcnew System::Windows::Forms::RadioButton());
-			this->radioButton4 = (gcnew System::Windows::Forms::RadioButton());
-			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
-			this->button1 = (gcnew System::Windows::Forms::Button());
-			this->groupBox3 = (gcnew System::Windows::Forms::GroupBox());
-			this->label7 = (gcnew System::Windows::Forms::Label());
-			this->label8 = (gcnew System::Windows::Forms::Label());
-			this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
-			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->label9 = (gcnew System::Windows::Forms::Label());
+			this->columnHeader4 = (gcnew System::Windows::Forms::ColumnHeader());
 			this->statusStrip1->SuspendLayout();
 			this->notifyContextMenu->SuspendLayout();
 			this->tabControl1->SuspendLayout();
 			this->tabPage1->SuspendLayout();
 			this->tabPage2->SuspendLayout();
+			this->groupBox3->SuspendLayout();
+			this->groupBox2->SuspendLayout();
 			this->groupBox1->SuspendLayout();
 			this->tabPage4->SuspendLayout();
-			this->groupBox2->SuspendLayout();
-			this->groupBox3->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// statusStrip1
@@ -306,8 +310,8 @@ namespace CronusMAX_XInput {
 			// 
 			// listView1
 			// 
-			this->listView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(3) {this->columnHeader1, this->columnHeader2, 
-				this->columnHeader3});
+			this->listView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(4) {this->columnHeader1, this->columnHeader2, 
+				this->columnHeader3, this->columnHeader4});
 			this->listView1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->listView1->Enabled = false;
 			this->listView1->Font = (gcnew System::Drawing::Font(L"Consolas", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
@@ -411,6 +415,74 @@ namespace CronusMAX_XInput {
 			this->tabPage2->Text = L"Options";
 			this->tabPage2->UseVisualStyleBackColor = true;
 			// 
+			// button2
+			// 
+			this->button2->Location = System::Drawing::Point(101, 252);
+			this->button2->Name = L"button2";
+			this->button2->Size = System::Drawing::Size(164, 23);
+			this->button2->TabIndex = 4;
+			this->button2->Text = L"Save Options && Restart XInput";
+			this->button2->UseVisualStyleBackColor = true;
+			this->button2->Click += gcnew System::EventHandler(this, &Form1::button2_Click);
+			// 
+			// label7
+			// 
+			this->label7->ForeColor = System::Drawing::Color::DarkRed;
+			this->label7->Location = System::Drawing::Point(10, 228);
+			this->label7->Name = L"label7";
+			this->label7->Size = System::Drawing::Size(350, 22);
+			this->label7->TabIndex = 3;
+			this->label7->Text = L"Changes will not take effect until you restart the application.";
+			this->label7->TextAlign = System::Drawing::ContentAlignment::TopCenter;
+			// 
+			// groupBox3
+			// 
+			this->groupBox3->Controls->Add(this->checkBox1);
+			this->groupBox3->Location = System::Drawing::Point(8, 163);
+			this->groupBox3->Name = L"groupBox3";
+			this->groupBox3->Size = System::Drawing::Size(349, 53);
+			this->groupBox3->TabIndex = 2;
+			this->groupBox3->TabStop = false;
+			this->groupBox3->Text = L"Configurations";
+			// 
+			// checkBox1
+			// 
+			this->checkBox1->AutoSize = true;
+			this->checkBox1->Location = System::Drawing::Point(11, 23);
+			this->checkBox1->Name = L"checkBox1";
+			this->checkBox1->Size = System::Drawing::Size(286, 19);
+			this->checkBox1->TabIndex = 0;
+			this->checkBox1->Text = L"Passthrough input from authentication controller";
+			this->checkBox1->UseVisualStyleBackColor = true;
+			// 
+			// groupBox2
+			// 
+			this->groupBox2->Controls->Add(this->label8);
+			this->groupBox2->Controls->Add(this->button1);
+			this->groupBox2->Location = System::Drawing::Point(8, 99);
+			this->groupBox2->Name = L"groupBox2";
+			this->groupBox2->Size = System::Drawing::Size(350, 58);
+			this->groupBox2->TabIndex = 1;
+			this->groupBox2->TabStop = false;
+			this->groupBox2->Text = L"GPC scripting";
+			// 
+			// label8
+			// 
+			this->label8->Location = System::Drawing::Point(136, 19);
+			this->label8->Name = L"label8";
+			this->label8->Size = System::Drawing::Size(206, 30);
+			this->label8->TabIndex = 2;
+			this->label8->Text = L"Scripting via a C interpreter.  Not all GPC language features are supported.";
+			// 
+			// button1
+			// 
+			this->button1->Location = System::Drawing::Point(10, 22);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(120, 23);
+			this->button1->TabIndex = 0;
+			this->button1->Text = L"Edit GPC script";
+			this->button1->UseVisualStyleBackColor = true;
+			// 
 			// groupBox1
 			// 
 			this->groupBox1->Controls->Add(this->radioButton4);
@@ -425,6 +497,50 @@ namespace CronusMAX_XInput {
 			this->groupBox1->TabStop = false;
 			this->groupBox1->Text = L"Input Wrapper";
 			// 
+			// radioButton4
+			// 
+			this->radioButton4->AutoSize = true;
+			this->radioButton4->Location = System::Drawing::Point(281, 22);
+			this->radioButton4->Name = L"radioButton4";
+			this->radioButton4->Size = System::Drawing::Size(60, 19);
+			this->radioButton4->TabIndex = 5;
+			this->radioButton4->TabStop = true;
+			this->radioButton4->Text = L"x360ce";
+			this->radioButton4->UseVisualStyleBackColor = true;
+			// 
+			// radioButton3
+			// 
+			this->radioButton3->AutoSize = true;
+			this->radioButton3->Location = System::Drawing::Point(222, 22);
+			this->radioButton3->Name = L"radioButton3";
+			this->radioButton3->Size = System::Drawing::Size(44, 19);
+			this->radioButton3->TabIndex = 4;
+			this->radioButton3->TabStop = true;
+			this->radioButton3->Text = L"PS3";
+			this->radioButton3->UseVisualStyleBackColor = true;
+			// 
+			// radioButton2
+			// 
+			this->radioButton2->AutoSize = true;
+			this->radioButton2->Location = System::Drawing::Point(132, 22);
+			this->radioButton2->Name = L"radioButton2";
+			this->radioButton2->Size = System::Drawing::Size(76, 19);
+			this->radioButton2->TabIndex = 3;
+			this->radioButton2->TabStop = true;
+			this->radioButton2->Text = L"Xbox One";
+			this->radioButton2->UseVisualStyleBackColor = true;
+			// 
+			// radioButton1
+			// 
+			this->radioButton1->AutoSize = true;
+			this->radioButton1->Location = System::Drawing::Point(10, 22);
+			this->radioButton1->Name = L"radioButton1";
+			this->radioButton1->Size = System::Drawing::Size(112, 19);
+			this->radioButton1->TabIndex = 2;
+			this->radioButton1->TabStop = true;
+			this->radioButton1->Text = L"None (Xbox 360)";
+			this->radioButton1->UseVisualStyleBackColor = true;
+			// 
 			// label1
 			// 
 			this->label1->Location = System::Drawing::Point(8, 44);
@@ -436,6 +552,7 @@ namespace CronusMAX_XInput {
 			// 
 			// tabPage4
 			// 
+			this->tabPage4->Controls->Add(this->label9);
 			this->tabPage4->Controls->Add(this->label6);
 			this->tabPage4->Controls->Add(this->label5);
 			this->tabPage4->Controls->Add(this->label4);
@@ -454,7 +571,7 @@ namespace CronusMAX_XInput {
 			// 
 			// label6
 			// 
-			this->label6->Location = System::Drawing::Point(8, 123);
+			this->label6->Location = System::Drawing::Point(8, 93);
 			this->label6->Name = L"label6";
 			this->label6->Size = System::Drawing::Size(350, 28);
 			this->label6->TabIndex = 7;
@@ -465,7 +582,7 @@ namespace CronusMAX_XInput {
 			// 
 			this->label5->Font = (gcnew System::Drawing::Font(L"Segoe UI", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
-			this->label5->Location = System::Drawing::Point(9, 209);
+			this->label5->Location = System::Drawing::Point(9, 178);
 			this->label5->Name = L"label5";
 			this->label5->Size = System::Drawing::Size(350, 22);
 			this->label5->TabIndex = 6;
@@ -476,7 +593,7 @@ namespace CronusMAX_XInput {
 			// 
 			this->label4->Font = (gcnew System::Drawing::Font(L"Segoe UI", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
-			this->label4->Location = System::Drawing::Point(6, 155);
+			this->label4->Location = System::Drawing::Point(6, 122);
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(350, 22);
 			this->label4->TabIndex = 5;
@@ -485,7 +602,7 @@ namespace CronusMAX_XInput {
 			// 
 			// linkLabel2
 			// 
-			this->linkLabel2->Location = System::Drawing::Point(9, 231);
+			this->linkLabel2->Location = System::Drawing::Point(9, 200);
 			this->linkLabel2->Name = L"linkLabel2";
 			this->linkLabel2->Size = System::Drawing::Size(349, 25);
 			this->linkLabel2->TabIndex = 4;
@@ -498,7 +615,7 @@ namespace CronusMAX_XInput {
 			// 
 			this->Author->Font = (gcnew System::Drawing::Font(L"Segoe UI", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
-			this->Author->Location = System::Drawing::Point(9, 101);
+			this->Author->Location = System::Drawing::Point(9, 71);
 			this->Author->Name = L"Author";
 			this->Author->Size = System::Drawing::Size(350, 22);
 			this->Author->TabIndex = 3;
@@ -507,7 +624,7 @@ namespace CronusMAX_XInput {
 			// 
 			// linkLabel1
 			// 
-			this->linkLabel1->Location = System::Drawing::Point(9, 177);
+			this->linkLabel1->Location = System::Drawing::Point(9, 144);
 			this->linkLabel1->Name = L"linkLabel1";
 			this->linkLabel1->Size = System::Drawing::Size(349, 28);
 			this->linkLabel1->TabIndex = 2;
@@ -520,7 +637,7 @@ namespace CronusMAX_XInput {
 			// 
 			this->label3->Font = (gcnew System::Drawing::Font(L"Segoe UI", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
-			this->label3->Location = System::Drawing::Point(8, 26);
+			this->label3->Location = System::Drawing::Point(8, 16);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(350, 21);
 			this->label3->TabIndex = 1;
@@ -529,124 +646,30 @@ namespace CronusMAX_XInput {
 			// 
 			// label2
 			// 
-			this->label2->Location = System::Drawing::Point(8, 54);
+			this->label2->Location = System::Drawing::Point(6, 41);
 			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(350, 28);
+			this->label2->Size = System::Drawing::Size(354, 22);
 			this->label2->TabIndex = 0;
-			this->label2->Text = L"XInput plugin for GPP/CronusMAX device";
+			this->label2->Text = L"XInput for GPP/CronusMAX device";
 			this->label2->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
-			// radioButton1
+			// label9
 			// 
-			this->radioButton1->AutoSize = true;
-			this->radioButton1->Location = System::Drawing::Point(10, 22);
-			this->radioButton1->Name = L"radioButton1";
-			this->radioButton1->Size = System::Drawing::Size(112, 19);
-			this->radioButton1->TabIndex = 2;
-			this->radioButton1->TabStop = true;
-			this->radioButton1->Text = L"None (Xbox 360)";
-			this->radioButton1->UseVisualStyleBackColor = true;
+			this->label9->Font = (gcnew System::Drawing::Font(L"Segoe UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->label9->Location = System::Drawing::Point(9, 239);
+			this->label9->Name = L"label9";
+			this->label9->Size = System::Drawing::Size(350, 45);
+			this->label9->TabIndex = 8;
+			this->label9->Text = L"gcdapi.dll © Gtuner Licensor. xinput1_3.dll © Microsoft Corporation. xinput1_3_x3" 
+				L"60ce.dll is part of the x360ce project. xinput1_3_ps3.dll is part of Scarlet.Cru" 
+				L"sh\'s XInput wrapper.";
+			this->label9->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
-			// radioButton2
+			// columnHeader4
 			// 
-			this->radioButton2->AutoSize = true;
-			this->radioButton2->Location = System::Drawing::Point(132, 22);
-			this->radioButton2->Name = L"radioButton2";
-			this->radioButton2->Size = System::Drawing::Size(76, 19);
-			this->radioButton2->TabIndex = 3;
-			this->radioButton2->TabStop = true;
-			this->radioButton2->Text = L"Xbox One";
-			this->radioButton2->UseVisualStyleBackColor = true;
-			// 
-			// radioButton3
-			// 
-			this->radioButton3->AutoSize = true;
-			this->radioButton3->Location = System::Drawing::Point(222, 22);
-			this->radioButton3->Name = L"radioButton3";
-			this->radioButton3->Size = System::Drawing::Size(44, 19);
-			this->radioButton3->TabIndex = 4;
-			this->radioButton3->TabStop = true;
-			this->radioButton3->Text = L"PS3";
-			this->radioButton3->UseVisualStyleBackColor = true;
-			// 
-			// radioButton4
-			// 
-			this->radioButton4->AutoSize = true;
-			this->radioButton4->Location = System::Drawing::Point(281, 22);
-			this->radioButton4->Name = L"radioButton4";
-			this->radioButton4->Size = System::Drawing::Size(60, 19);
-			this->radioButton4->TabIndex = 5;
-			this->radioButton4->TabStop = true;
-			this->radioButton4->Text = L"x360ce";
-			this->radioButton4->UseVisualStyleBackColor = true;
-			// 
-			// groupBox2
-			// 
-			this->groupBox2->Controls->Add(this->label8);
-			this->groupBox2->Controls->Add(this->button1);
-			this->groupBox2->Location = System::Drawing::Point(8, 99);
-			this->groupBox2->Name = L"groupBox2";
-			this->groupBox2->Size = System::Drawing::Size(350, 58);
-			this->groupBox2->TabIndex = 1;
-			this->groupBox2->TabStop = false;
-			this->groupBox2->Text = L"GPC scripting";
-			// 
-			// button1
-			// 
-			this->button1->Location = System::Drawing::Point(10, 22);
-			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(120, 23);
-			this->button1->TabIndex = 0;
-			this->button1->Text = L"Edit GPC script";
-			this->button1->UseVisualStyleBackColor = true;
-			// 
-			// groupBox3
-			// 
-			this->groupBox3->Controls->Add(this->checkBox1);
-			this->groupBox3->Location = System::Drawing::Point(8, 163);
-			this->groupBox3->Name = L"groupBox3";
-			this->groupBox3->Size = System::Drawing::Size(349, 53);
-			this->groupBox3->TabIndex = 2;
-			this->groupBox3->TabStop = false;
-			this->groupBox3->Text = L"Configurations";
-			// 
-			// label7
-			// 
-			this->label7->ForeColor = System::Drawing::Color::DarkRed;
-			this->label7->Location = System::Drawing::Point(10, 228);
-			this->label7->Name = L"label7";
-			this->label7->Size = System::Drawing::Size(350, 22);
-			this->label7->TabIndex = 3;
-			this->label7->Text = L"Changes will not take effect until you restart the application.";
-			this->label7->TextAlign = System::Drawing::ContentAlignment::TopCenter;
-			// 
-			// label8
-			// 
-			this->label8->Location = System::Drawing::Point(136, 19);
-			this->label8->Name = L"label8";
-			this->label8->Size = System::Drawing::Size(206, 30);
-			this->label8->TabIndex = 2;
-			this->label8->Text = L"Scripting via a C interpreter.  Not all GPC language features are supported.";
-			// 
-			// checkBox1
-			// 
-			this->checkBox1->AutoSize = true;
-			this->checkBox1->Location = System::Drawing::Point(11, 23);
-			this->checkBox1->Name = L"checkBox1";
-			this->checkBox1->Size = System::Drawing::Size(286, 19);
-			this->checkBox1->TabIndex = 0;
-			this->checkBox1->Text = L"Passthrough input from authentication controller";
-			this->checkBox1->UseVisualStyleBackColor = true;
-			// 
-			// button2
-			// 
-			this->button2->Location = System::Drawing::Point(101, 252);
-			this->button2->Name = L"button2";
-			this->button2->Size = System::Drawing::Size(164, 23);
-			this->button2->TabIndex = 4;
-			this->button2->Text = L"Save Options && Restart XInput";
-			this->button2->UseVisualStyleBackColor = true;
-			this->button2->Click += gcnew System::EventHandler(this, &Form1::button2_Click);
+			this->columnHeader4->Text = L"PTime";
+			this->columnHeader4->Width = 50;
 			// 
 			// Form1
 			// 
@@ -669,12 +692,12 @@ namespace CronusMAX_XInput {
 			this->tabControl1->ResumeLayout(false);
 			this->tabPage1->ResumeLayout(false);
 			this->tabPage2->ResumeLayout(false);
+			this->groupBox3->ResumeLayout(false);
+			this->groupBox3->PerformLayout();
+			this->groupBox2->ResumeLayout(false);
 			this->groupBox1->ResumeLayout(false);
 			this->groupBox1->PerformLayout();
 			this->tabPage4->ResumeLayout(false);
-			this->groupBox2->ResumeLayout(false);
-			this->groupBox3->ResumeLayout(false);
-			this->groupBox3->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
