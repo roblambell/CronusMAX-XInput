@@ -53,7 +53,9 @@ int8_t rumble[4] = {0};
 /*  Configuration
  */
 wchar_t cfgFilePath[100] = L"./XInput.cfg\0";
+wchar_t *xinputWrappers[] = {L"xinput1_3_360_ps3.dll", L"xinput1_3_xb1.dll", L"xinput1_3.dll"};
 char *gpcFileName = "XInput.gpc";
+
 
 namespace CronusMAX_XInput {
 
@@ -87,6 +89,7 @@ namespace CronusMAX_XInput {
 		
 		// Load configuration
 		bool passthruInput = GetPrivateProfileInt(L"Options", L"PassthruInput", 0, cfgFilePath) ? true : false;
+		int inputWrapper = GetPrivateProfileInt(L"Options", L"InputWrapper", 0, cfgFilePath);
 
 		// Load the Direct API Library
 		hInsDeviceAPI = LoadLibrary(TEXT("gcdapi.dll"));
@@ -203,7 +206,8 @@ namespace CronusMAX_XInput {
 		};
 
 		// Create hInstance of xinput1_3
-		HINSTANCE hInsXInput1_3 = LoadLibrary(L"xinput1_3.dll");
+		//HINSTANCE hInsXInput1_3 = LoadLibrary(L"xinput1_3.dll");
+		HINSTANCE hInsXInput1_3 = LoadLibrary(xinputWrappers[inputWrapper]);
 		if(hInsXInput1_3 == NULL)
 		{
 			if(!cancellationPending)
@@ -259,6 +263,8 @@ namespace CronusMAX_XInput {
 
 		while ( !cancellationPending )
 		{
+			cancellationPending = worker->CancellationPending;
+
 			DWORD result = XInputGetStateEx(controllerNum, controllerState);
 
 			forwarderState.controllerConnected = result == ERROR_SUCCESS ? true : false;
@@ -378,7 +384,7 @@ namespace CronusMAX_XInput {
 			{
 				gpci_Execute(gpcFileName, &output, &rumble);
 			}
-			
+
 			// Rumble to controller
 			if(forwarderState.controllerConnected)
 			{
