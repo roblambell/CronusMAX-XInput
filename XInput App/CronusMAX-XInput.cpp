@@ -56,7 +56,6 @@ wchar_t cfgFilePath[100] = L"./XInput.cfg\0";
 wchar_t *xinputWrappers[] = {L"xinput1_3_360_ps3.dll", L"xinput1_3_xb1.dll", L"xinput1_3.dll"};
 char *gpcFileName = "XInput.gpc";
 
-
 namespace CronusMAX_XInput {
 
 	using namespace System;
@@ -212,7 +211,7 @@ namespace CronusMAX_XInput {
 		{
 			if(!cancellationPending)
 			{
-				forwarderState.errorMessage = "Error on loading xinput1_3.dll";
+				forwarderState.errorMessage = "Error on loading " + gcnew String(xinputWrappers[inputWrapper]);
 				worker->ReportProgress(0, forwarderState);
 				cancellationPending = true;
 			}
@@ -255,8 +254,18 @@ namespace CronusMAX_XInput {
 		XInputSetState = pICFUNC3(pointerToDLLFunction3);
 		
 		// Assign XInputSetStateEx for easier use
-		pICFUNC104 XInputSetStateEx;
+		pICFUNC104 XInputSetStateEx = NULL;
 		XInputSetStateEx = pICFUNC104(pointerToDLLFunction104);
+
+		if(XInputGetStateEx == NULL)
+		{
+			if(!cancellationPending)
+			{
+				forwarderState.errorMessage = "Error with XInputGetStateEx in " + gcnew String(xinputWrappers[inputWrapper]);
+				worker->ReportProgress(0, forwarderState);
+				cancellationPending = true;
+			}
+		}
 
 		// Create a Controller State
 		XInputStateEx controllerState;
@@ -266,7 +275,7 @@ namespace CronusMAX_XInput {
 			cancellationPending = worker->CancellationPending;
 
 			DWORD result = XInputGetStateEx(controllerNum, controllerState);
-
+			
 			forwarderState.controllerConnected = result == ERROR_SUCCESS ? true : false;
 			forwarderState.deviceConnected = gcapi_IsConnected() ? true : false;
 			
@@ -367,9 +376,9 @@ namespace CronusMAX_XInput {
 				}
 			}
 
-			// Rumble from console
-			rumble[0] = forwarderState.deviceConnected ? report.rumble[0] : 0;
-			rumble[1] = forwarderState.deviceConnected ? report.rumble[1] : 0;
+			// Rumble from console. reported as [0 ~ 255]
+			rumble[0] = forwarderState.deviceConnected ? iround((float)report.rumble[0] / 2.55) : 0;
+			rumble[1] = forwarderState.deviceConnected ? iround((float)report.rumble[1] / 2.55) : 0;
 			rumble[2] = 0; //report.rumble[2];
 			rumble[3] = 0; //report.rumble[3];
 			
@@ -439,15 +448,16 @@ namespace CronusMAX_XInput {
 		if(hInsDeviceAPI != NULL)
 		{
 			gcdapi_Unload();
+			FreeLibrary(hInsDeviceAPI);
 		}
 		if(hInsGPCInterpreter != NULL)
 		{
 			gpci_Unload();
+			FreeLibrary(hInsGPCInterpreter);
 		}
-		FreeLibrary(hInsDeviceAPI);
-		FreeLibrary(hInsGPCInterpreter);
-		FreeLibrary(hInsXInput1_3);
-
+		if(hInsXInput1_3 != NULL){
+			FreeLibrary(hInsXInput1_3);
+		}
 		e->Cancel = true;
 	}
 
