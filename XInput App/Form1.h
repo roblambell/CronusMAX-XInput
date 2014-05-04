@@ -695,7 +695,7 @@ namespace CronusMAX_XInput {
 			this->Name = L"Form1";
 			this->ShowInTaskbar = false;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"XInput v0.3.0.0";
+			this->Text = L"XInput v0.3.1.0";
 			this->Resize += gcnew System::EventHandler(this, &Form1::Form1_Resize);
 			this->statusStrip1->ResumeLayout(false);
 			this->statusStrip1->PerformLayout();

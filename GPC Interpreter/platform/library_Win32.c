@@ -8,6 +8,10 @@ void Win32SetupFunc(void)
 int8_t output[21];
 int8_t rumble_out[4];
 
+int iround(double num) {
+	return (num > 0.0) ? (int)floor(num + 0.5) : (int)ceil(num - 0.5);
+}
+
 /* GPC I/O Functions 
  *
  * get_val       Returns the current value of a controller entry
@@ -95,14 +99,33 @@ void Cswap (struct ParseState *Parser, struct Value *ReturnValue, struct Value *
 // Blocks forwarding of a controller entry for a short period of time
 void Cblock (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
-	
+
 }
 
 // TODO: sensitivity ( <identifier>, <midpoint>, <sensitivity> )
 // Adjust the sensitivity of a controller entry
 void Csensitivity (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
+	int button = Param[0]->Val->Integer;
+	int input_val = output[button];
+	int midpoint = Param[1]->Val->Integer;
+	int sensitivity = Param[1]->Val->Integer;
+
+	int total;
+	int output_val;
+
+	if(input_val > midpoint)
+	{
+		total = (100 - midpoint) * 2;
+		output_val = ((100 - midpoint) + (input_val - midpoint)) / total;
+	}
+	else
+	{
+		total = midpoint * 2;
+		output_val = input_val / total;
+	}
 	
+	output[button] = iround(output_val * sensitivity);
 }
 
 // TODO: deadzone ( <identifierX>, <identifierY>, <xdz_cir>, <ydz_rad> )
@@ -309,6 +332,9 @@ int RUMBLE_B =     1;
 int RUMBLE_LT =    2;
 int RUMBLE_RT =    3;
 
+// GPC constants
+int DZ_CIRCLE =    101;
+
 void PlatformLibraryInit(void)
 {
 	IncludeRegister("picoc_unix.h", &Win32SetupFunc, &Win32Functions[0], NULL);
@@ -455,4 +481,5 @@ void PlatformLibraryInit(void)
 	VariableDefinePlatformVar(NULL, "RUMBLE_LT", &IntType, (union AnyValue *)&RUMBLE_LT, TRUE);
 	VariableDefinePlatformVar(NULL, "RUMBLE_RT", &IntType, (union AnyValue *)&RUMBLE_RT, TRUE);
 
+	VariableDefinePlatformVar(NULL, "DZ_CIRCLE", &IntType, (union AnyValue *)&DZ_CIRCLE, TRUE);
 }
