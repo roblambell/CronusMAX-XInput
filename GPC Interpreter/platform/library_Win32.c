@@ -107,9 +107,10 @@ void Cblock (struct ParseState *Parser, struct Value *ReturnValue, struct Value 
 void Csensitivity (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
 	int button = Param[0]->Val->Integer;
-	int input_val = output[button];
 	int midpoint = Param[1]->Val->Integer;
-	int sensitivity = Param[1]->Val->Integer;
+	int sensitivity = Param[2]->Val->Integer;
+
+	int input_val = output[button];
 
 	int total;
 	int output_val;
@@ -128,18 +129,50 @@ void Csensitivity (struct ParseState *Parser, struct Value *ReturnValue, struct 
 	output[button] = iround(output_val * sensitivity);
 }
 
-// TODO: deadzone ( <identifierX>, <identifierY>, <xdz_cir>, <ydz_rad> )
+// deadzone ( <identifierX>, <identifierY>, <xdz_cir>, <ydz_rad> )
 // Remove the deadzone of a pair of entries, usually of analog sticks
 void Cdeadzone (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
-	
+	int identifierX = Param[0]->Val->Integer;
+	int identifierY = Param[1]->Val->Integer;
+	int xdz_cir = Param[2]->Val->Integer;
+	int ydz_rad = Param[3]->Val->Integer;
+
+	int input_x = output[identifierX];
+	int input_y = output[identifierY];
+
+	int output_x = 0;
+	int output_y = 0;
+
+	if(xdz_cir == 101) // DZ_CIRCLE
+	{
+		// Circle
+		if(input_x)
+		{
+			output_x = abs(input_x) + (ydz_rad * ((100 - abs(input_y)) / 100));
+		}
+
+		if(input_y)
+		{
+			output_y = abs(input_y) + (ydz_rad * ((100 - abs(input_x)) / 100));
+		}
+
+		output[identifierX] = input_x < 0 ? output_x * -1 : output_x;
+		output[identifierY] = input_y < 0 ? output_y * -1 : output_y;
+	}
+	else
+	{
+		// Square
+		output[identifierX] = output[identifierX] >= 0 ? output[identifierX] + ydz_rad : output[identifierX] - ydz_rad;
+		output[identifierY] = output[identifierY] >= 0 ? output[identifierY] + ydz_rad : output[identifierY] - ydz_rad;
+	}
 }
 
 // TODO: stickize ( <identifierX>, <identifierY>, <radius> )
 // Transform the values of mouse input (or Wiimote IR) to analog stick
 void Cstickize (struct ParseState *Parser, struct Value *ReturnValue, struct Value **Param, int NumArgs) 
 {
-	
+	// Not needed? It's *I think* for mouse/wiimote where the values being fed in map to a square
 }
 
 // Rumble
