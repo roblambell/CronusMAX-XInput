@@ -156,16 +156,16 @@ void Cdeadzone (struct ParseState *Parser, struct Value *ReturnValue, struct Val
 		{
 			output_y = abs(input_y) + (ydz_rad * ((100 - abs(input_x)) / 100));
 		}
-
-		output[identifierX] = input_x < 0 ? output_x * -1 : output_x;
-		output[identifierY] = input_y < 0 ? output_y * -1 : output_y;
 	}
 	else
 	{
 		// Square
-		output[identifierX] = output[identifierX] >= 0 ? output[identifierX] + ydz_rad : output[identifierX] - ydz_rad;
-		output[identifierY] = output[identifierY] >= 0 ? output[identifierY] + ydz_rad : output[identifierY] - ydz_rad;
+		output_x = abs(input_x) + ydz_rad;
+		output_y = abs(input_y) + ydz_rad;
 	}
+
+	output[identifierX] = input_x < 0 ? output_x * -1 : output_x;
+	output[identifierY] = input_y < 0 ? output_y * -1 : output_y;
 }
 
 // TODO: stickize ( <identifierX>, <identifierY>, <radius> )
