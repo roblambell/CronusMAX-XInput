@@ -1,0 +1,1 @@
+C:\Python34\Scripts\pyside-uic.exe dialog.ui -o dialog.py

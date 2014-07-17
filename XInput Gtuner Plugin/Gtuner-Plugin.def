@@ -1,7 +1,0 @@
-LIBRARY	"Gtuner-Plugin"
-
-EXPORTS
-		gpp_PluginName   @1
-		gpp_Load         @2
-		gpp_Unload       @3
-		gpp_ReportUpdate @4
