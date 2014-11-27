@@ -1,6 +1,9 @@
 CronusMAX-XInput
 ====================
 
+Repository no longer updated. Development is now private.
+--------------------
+
 XInput support enables you to seamlessly use controllers plugged in to your PC to play games. It captures the input from your PC, converts these inputs and, through the CronusMAX device, sends your commands to the console. This can be particularly useful when a controller is not yet supported by the CronusMAX device directly.
 
 Supported input standards:  
